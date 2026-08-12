@@ -424,29 +424,74 @@
 
   // ---- Cloud sync (Google Sheets via Apps Script Web App) ----
 
-  function withToken_(url) {
+  function withToken_(url, extra) {
     var sep = url.indexOf('?') === -1 ? '?' : '&';
-    return url + sep + 'token=' + encodeURIComponent(cloudConfig.token);
+    var out = url + sep + 'token=' + encodeURIComponent(cloudConfig.token);
+    if (extra) out += '&' + extra;
+    return out;
+  }
+
+  // Apps Script Web Apps don't send CORS headers on their responses, so a
+  // normal fetch() can't read the JSON back even when everything else is
+  // configured correctly. Script-tag (JSONP) loads aren't subject to CORS,
+  // so that's what we use to actually read data cross-origin.
+  function jsonpFetch_(url) {
+    return new Promise(function (resolve, reject) {
+      var cbName = '__medSyncCb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
+      var script = document.createElement('script');
+      var done = false;
+
+      var cleanup = function () {
+        delete window[cbName];
+        if (script.parentNode) script.parentNode.removeChild(script);
+      };
+      var timeoutId = setTimeout(function () {
+        if (done) return;
+        done = true;
+        cleanup();
+        reject(new Error('tempo esgotado ao buscar da nuvem'));
+      }, 15000);
+
+      window[cbName] = function (data) {
+        if (done) return;
+        done = true;
+        clearTimeout(timeoutId);
+        cleanup();
+        resolve(data);
+      };
+      script.onerror = function () {
+        if (done) return;
+        done = true;
+        clearTimeout(timeoutId);
+        cleanup();
+        reject(new Error('falha ao carregar dados da nuvem (URL incorreta?)'));
+      };
+
+      script.src = withToken_(url, 'callback=' + encodeURIComponent(cbName));
+      document.head.appendChild(script);
+    });
   }
 
   async function cloudFetchLatest() {
-    var res = await fetch(withToken_(cloudConfig.url), { method: 'GET' });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var data = await res.json();
-    if (data && data.error) throw new Error(data.error);
+    var data = await jsonpFetch_(cloudConfig.url);
+    if (data && data.error) throw new Error(data.error === 'unauthorized' ? 'senha incorreta' : data.error);
     return data;
   }
 
+  // POST responses also lack CORS headers, so we can't read them back either.
+  // We send with mode: 'no-cors' (the write still reaches the server), then
+  // read the data back via JSONP to confirm it actually landed.
   async function cloudUpdate(data) {
-    // text/plain avoids a CORS preflight, which Apps Script Web Apps don't handle.
-    var res = await fetch(withToken_(cloudConfig.url), {
+    await fetch(withToken_(cloudConfig.url), {
       method: 'POST',
+      mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(data)
     });
-    if (!res.ok) throw new Error('HTTP ' + res.status);
-    var json = await res.json();
-    if (json && json.error) throw new Error(json.error);
+    await new Promise(function (r) { setTimeout(r, 400); }); // give the script a moment to finish writing
+    var confirmed = await cloudFetchLatest();
+    var matches = confirmed && JSON.stringify(confirmed.entries || []) === JSON.stringify(data.entries || []);
+    if (!matches) throw new Error('não foi possível confirmar que os dados chegaram à planilha');
     return true;
   }
 
