@@ -473,9 +473,26 @@
   }
 
   async function cloudFetchLatest() {
-    var data = await jsonpFetch_(cloudConfig.url);
-    if (data && data.error) throw new Error(data.error === 'unauthorized' ? 'senha incorreta' : data.error);
-    return data;
+    var url = withToken_(cloudConfig.url);
+
+    // Try a plain fetch first — Apps Script redirects to a googleusercontent.com
+    // URL to actually serve the content, and that target often does support
+    // CORS for "Anyone" access web apps, so this frequently just works.
+    try {
+      var res = await fetch(url, { method: 'GET' });
+      if (res.ok) {
+        var data = await res.json();
+        if (data && data.error) throw new Error(data.error === 'unauthorized' ? 'senha incorreta' : data.error);
+        return data;
+      }
+    } catch (directErr) {
+      console.log('Direct fetch failed, falling back to JSONP.', directErr);
+    }
+
+    // Fallback: script-tag (JSONP) load, which isn't subject to CORS at all.
+    var data2 = await jsonpFetch_(cloudConfig.url);
+    if (data2 && data2.error) throw new Error(data2.error === 'unauthorized' ? 'senha incorreta' : data2.error);
+    return data2;
   }
 
   // POST responses also lack CORS headers, so we can't read them back either.
