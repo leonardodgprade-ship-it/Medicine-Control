@@ -223,6 +223,30 @@
 (function () {
   var STORAGE_KEY = 'medication-log';
 
+  // Standalone (GitHub Pages) storage backend: mirrors the {key, value, shared}
+  // shape and reject-on-missing-key behavior of Claude's artifact storage API,
+  // but backed by the browser's own localStorage since this file runs outside
+  // the Claude sandbox once published.
+  var storage = {
+    get: function (key) {
+      return new Promise(function (resolve, reject) {
+        try {
+          var raw = localStorage.getItem(key);
+          if (raw === null) { reject(new Error('Key not found: ' + key)); return; }
+          resolve({ key: key, value: raw });
+        } catch (e) { reject(e); }
+      });
+    },
+    set: function (key, value) {
+      return new Promise(function (resolve, reject) {
+        try {
+          localStorage.setItem(key, value);
+          resolve({ key: key, value: value });
+        } catch (e) { reject(e); }
+      });
+    }
+  };
+
   var state = { childName: '', entries: [], medDefaults: {} };
   var confirmDeleteId = null;
 
@@ -295,7 +319,7 @@
   // ---- Persistence ----
   async function loadState() {
     try {
-      var res = await window.storage.get(STORAGE_KEY, false);
+      var res = await storage.get(STORAGE_KEY);
       if (res && res.value) {
         var parsed = JSON.parse(res.value);
         state.childName = parsed.childName || '';
@@ -303,8 +327,8 @@
         state.medDefaults = parsed.medDefaults || {};
       }
     } catch (e) {
-      // Expected when no data exists yet on first run; also happens if the
-      // storage bridge itself is unavailable. Either way, start fresh here —
+      // Expected when no data exists yet on first run, or if localStorage is
+      // blocked (e.g. private/incognito browsing). Either way, start fresh —
       // the startup storage test below will tell the user which case it is.
       console.log('No existing medication log found (or storage unavailable), starting fresh.', e);
     }
@@ -313,7 +337,7 @@
 
   async function persist() {
     try {
-      var result = await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+      var result = await storage.set(STORAGE_KEY, JSON.stringify(state));
       if (!result) {
         setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⇅)');
         showToast('Não foi possível salvar automaticamente. Use o backup manual (ícone ⇅).');
@@ -333,12 +357,12 @@
     backupStatusMsg.textContent = 'Verificando salvamento automático…';
     try {
       var testVal = 'ping-' + Date.now();
-      await window.storage.set('storage-test-ping', testVal, false);
-      var res = await window.storage.get('storage-test-ping', false);
+      await storage.set('storage-test-ping', testVal);
+      var res = await storage.get('storage-test-ping');
       if (res && res.value === testVal) {
         setSaveStatus('ok', 'Salvamento automático ativo ✓');
         backupStatusMsg.className = 'backup-status-msg';
-        backupStatusMsg.textContent = 'O salvamento automático está funcionando neste dispositivo. Mesmo assim, vale copiar o backup abaixo de vez em quando como cópia extra de segurança.';
+        backupStatusMsg.textContent = 'O salvamento automático está funcionando neste navegador. Os dados ficam salvos neste dispositivo/navegador específico — copie o backup abaixo se quiser levar os dados para outro aparelho ou navegador, ou como cópia extra de segurança.';
         return true;
       }
       throw new Error('valor de teste não confere');
@@ -346,7 +370,7 @@
       console.error('Storage test failed', e);
       setSaveStatus('warn', '⚠ Salvamento automático indisponível — use o backup manual');
       backupStatusMsg.className = 'backup-status-msg warn';
-      backupStatusMsg.textContent = 'O salvamento automático não está funcionando neste dispositivo agora (pode ser uma limitação temporária deste aplicativo). Copie o backup abaixo depois de registrar doses, e cole-o aqui para restaurar quando abrir de novo — inclusive em outro dispositivo ou no navegador.';
+      backupStatusMsg.textContent = 'O salvamento automático não está funcionando neste navegador agora (modo privado/anônimo costuma bloquear isso). Copie o backup abaixo depois de registrar doses, e cole-o aqui para restaurar quando abrir de novo.';
       return false;
     }
   }
