@@ -526,7 +526,7 @@
       return true;
     } catch (e) {
       console.error('Cloud pull failed', e);
-      setCloudStatus('warn', '⚠ Falha ao buscar da nuvem — usando dados deste aparelho');
+      setCloudStatus('warn', '⚠ Falha ao sincronizar: ' + (e && e.message ? e.message : String(e)));
       return false;
     }
   }
@@ -849,7 +849,7 @@
     } catch (e) {
       console.error('Sync connect failed', e);
       syncStatusMsg.className = 'backup-status-msg warn';
-      syncStatusMsg.textContent = 'Não foi possível conectar — confira a URL e a senha (e se o deploy do Apps Script está ativo).';
+      syncStatusMsg.textContent = 'Não foi possível conectar. Detalhe técnico: ' + (e && e.message ? e.message : String(e));
       setCloudStatus('warn', '⚠ Falha ao sincronizar com a nuvem');
     }
   });
