@@ -1,0 +1,667 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Controle de Medicação</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #F5F7F1;
+    --bg-card: #FFFFFF;
+    --ink: #20302B;
+    --ink-soft: #5C6F68;
+    --sage: #4F8067;
+    --sage-soft: #DCEAE1;
+    --amber: #C97A2E;
+    --amber-soft: #F6E4CC;
+    --rose: #B14B3B;
+    --rose-soft: #F3DCD7;
+    --line: #E1E7DD;
+    --radius: 18px;
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; padding: 0; }
+  body {
+    background: var(--bg);
+    color: var(--ink);
+    font-family: 'Inter', sans-serif;
+    -webkit-font-smoothing: antialiased;
+    min-height: 100vh;
+  }
+  .app { max-width: 480px; margin: 0 auto; padding: 28px 20px 110px; position: relative; min-height: 100vh; }
+
+  .header { margin-bottom: 28px; }
+  .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: var(--sage); margin: 0 0 6px; font-weight: 600; }
+  .title-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.2; }
+  .icon-btn { border: none; background: none; color: var(--ink-soft); font-size: 16px; cursor: pointer; padding: 4px 6px; }
+  .icon-btn:hover { color: var(--sage); }
+  .child-name-input { margin-top: 10px; width: 100%; font-family: 'Fraunces', serif; font-size: 19px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); }
+  .hidden { display: none !important; }
+  .save-status { font-size: 12px; margin: 8px 0 0; font-family: 'IBM Plex Mono', monospace; }
+  .save-status.ok { color: var(--sage); }
+  .save-status.warn { color: var(--rose); }
+  .save-status.checking { color: var(--ink-soft); }
+
+  .status-section { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
+  .status-empty { font-size: 14px; color: var(--ink-soft); background: var(--bg-card); border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; line-height: 1.5; }
+
+  .status-card { position: relative; display: flex; align-items: center; gap: 14px; background: var(--bg-card); border-radius: var(--radius); padding: 14px 40px 14px 16px; border: 1px solid var(--line); cursor: pointer; transition: border-color .15s ease; }
+  .status-card:hover { border-color: var(--sage); }
+  .status-dismiss { position: absolute; top: 8px; right: 10px; border: none; background: none; color: var(--ink-soft); font-size: 15px; cursor: pointer; padding: 3px 6px; line-height: 1; }
+  .status-dismiss:hover { color: var(--rose); }
+
+  .ring-wrap { position: relative; width: 56px; height: 56px; flex-shrink: 0; }
+  .ring-wrap svg { transform: rotate(-90deg); width: 56px; height: 56px; }
+  .ring-bg { fill: none; stroke: var(--line); stroke-width: 6; }
+  .ring-fg { fill: none; stroke-width: 6; stroke-linecap: round; transition: stroke-dashoffset 1s linear; }
+  .ring-fg.ready { stroke: var(--sage); }
+  .ring-fg.waiting { stroke: var(--amber); }
+  .ring-label { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 600; }
+
+  .status-info { flex: 1; min-width: 0; }
+  .status-med-name { font-family: 'Fraunces', serif; font-weight: 600; font-size: 17px; margin: 0 0 2px; }
+  .status-detail { font-size: 13px; color: var(--ink-soft); margin: 0; }
+  .status-detail.ready { color: var(--sage); font-weight: 600; }
+  .status-detail.waiting { color: var(--amber); font-weight: 600; }
+  .status-last { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); margin-top: 4px; }
+
+  .section-title { font-family: 'Fraunces', serif; font-size: 20px; font-weight: 600; margin: 0 0 12px; }
+  .date-group { margin-bottom: 20px; }
+  .date-heading { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-soft); margin: 0 0 8px; padding-bottom: 6px; border-bottom: 1px solid var(--line); }
+  .history-row { display: flex; gap: 12px; padding: 10px 0; border-bottom: 1px solid var(--line); align-items: flex-start; }
+  .history-row:last-child { border-bottom: none; }
+  .history-time { font-family: 'IBM Plex Mono', monospace; font-size: 13px; color: var(--ink-soft); width: 44px; flex-shrink: 0; padding-top: 2px; }
+  .history-main { flex: 1; min-width: 0; }
+  .history-med { font-weight: 600; font-size: 14px; }
+  .history-dose { font-family: 'IBM Plex Mono', monospace; font-size: 12px; color: var(--sage); margin-left: 6px; }
+  .history-notes { font-size: 12px; color: var(--ink-soft); margin-top: 2px; }
+  .history-del { border: none; background: none; color: var(--ink-soft); cursor: pointer; font-size: 15px; padding: 4px 6px; flex-shrink: 0; }
+  .history-del:hover { color: var(--rose); }
+  .history-confirm { display: flex; gap: 8px; align-items: center; font-size: 12px; width: 100%; justify-content: flex-end; }
+  .history-confirm span { margin-right: auto; color: var(--ink-soft); }
+  .history-confirm button { border: none; border-radius: 8px; padding: 5px 10px; font-size: 12px; cursor: pointer; font-family: 'Inter', sans-serif; font-weight: 600; }
+  .confirm-yes { background: var(--rose-soft); color: var(--rose); }
+  .confirm-no { background: var(--line); color: var(--ink-soft); }
+
+  .history-empty { font-size: 14px; color: var(--ink-soft); padding: 10px 0; }
+
+  .fab { position: fixed; right: 24px; bottom: 28px; width: 58px; height: 58px; border-radius: 50%; background: var(--ink); color: #fff; border: none; font-size: 28px; line-height: 1; cursor: pointer; box-shadow: 0 8px 20px rgba(32,48,43,0.25); display: flex; align-items: center; justify-content: center; z-index: 20; }
+  .fab:hover { background: var(--sage); }
+
+  .sheet-overlay { position: fixed; inset: 0; background: rgba(32,48,43,0.35); display: flex; align-items: flex-end; z-index: 30; }
+  .sheet { background: var(--bg); width: 100%; max-width: 480px; margin: 0 auto; border-radius: 24px 24px 0 0; padding: 10px 20px 26px; max-height: 88vh; overflow-y: auto; animation: slideUp .25s ease; }
+  @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
+  @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } .ring-fg { transition: none; } }
+  .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 6px auto 14px; }
+  .sheet-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; margin: 0 0 16px; }
+  .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; color: var(--ink-soft); font-weight: 500; }
+  .field input, .field select { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); width: 100%; }
+  .field input:focus, .field select:focus { outline: 2px solid var(--sage); outline-offset: 1px; border-color: var(--sage); }
+  .field-row { display: flex; gap: 12px; }
+  .field-row .field { flex: 1; }
+  .sheet-actions { display: flex; gap: 10px; margin-top: 6px; }
+  .btn-primary, .btn-secondary { flex: 1; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
+  .btn-primary { background: var(--ink); color: #fff; }
+  .btn-primary:hover { background: var(--sage); }
+  .btn-secondary { background: var(--bg-card); color: var(--ink-soft); border: 1px solid var(--line); }
+
+  .backup-section { margin-bottom: 18px; }
+  .backup-label { font-size: 13px; color: var(--ink-soft); font-weight: 500; margin: 0 0 6px; }
+  textarea.backup-area { width: 100%; min-height: 90px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); resize: vertical; }
+  .backup-actions { display: flex; gap: 8px; margin-top: 8px; }
+  .backup-status-msg { font-size: 13px; margin: 0 0 16px; padding: 10px 12px; border-radius: 10px; background: var(--sage-soft); color: var(--sage); line-height: 1.5; }
+  .backup-status-msg.warn { background: var(--rose-soft); color: var(--rose); }
+
+  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: var(--rose); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 50; box-shadow: 0 6px 16px rgba(0,0,0,0.15); max-width: 90%; text-align: center; }
+</style>
+</head>
+<body>
+  <div class="app">
+    <header class="header">
+      <p class="eyebrow">CONTROLE DE MEDICAÇÃO</p>
+      <div class="title-row">
+        <h1 class="title" id="childNameDisplay">Carregando…</h1>
+        <button class="icon-btn" id="editNameBtn" aria-label="Editar nome">✎</button>
+        <button class="icon-btn" id="backupBtn" aria-label="Backup dos dados">⇅</button>
+      </div>
+      <input id="childNameInput" class="child-name-input hidden" placeholder="Nome da criança" />
+      <p class="save-status checking" id="saveStatus">Verificando salvamento…</p>
+    </header>
+
+    <section class="status-section" id="statusSection" aria-label="Status das medicações"></section>
+
+    <section class="history-section">
+      <h2 class="section-title">Histórico</h2>
+      <div id="historyList"></div>
+    </section>
+
+    <button class="fab" id="fabAdd" aria-label="Registrar nova dose">+</button>
+
+    <div class="sheet-overlay hidden" id="sheetOverlay">
+      <div class="sheet" role="dialog" aria-modal="true" aria-label="Registrar dose">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">Registrar dose</h2>
+        <form id="doseForm">
+          <label class="field">
+            <span>Medicamento</span>
+            <input list="medList" id="medName" required placeholder="Ex.: Paracetamol" autocomplete="off" />
+            <datalist id="medList"></datalist>
+          </label>
+          <div class="field-row">
+            <label class="field">
+              <span>Quantidade</span>
+              <input type="number" id="amount" step="0.1" min="0" required placeholder="0" inputmode="decimal" />
+            </label>
+            <label class="field">
+              <span>Unidade</span>
+              <input type="text" id="unit" list="unitList" value="ml" required />
+              <datalist id="unitList">
+                <option value="ml"></option>
+                <option value="mg"></option>
+                <option value="gotas"></option>
+                <option value="comprimido(s)"></option>
+                <option value="sachê"></option>
+              </datalist>
+            </label>
+          </div>
+          <label class="field">
+            <span>Intervalo entre doses (horas) — opcional</span>
+            <input type="number" id="interval" min="0" step="0.5" placeholder="Ex.: 6" inputmode="decimal" />
+          </label>
+          <label class="field">
+            <span>Data e hora</span>
+            <input type="datetime-local" id="timestamp" required />
+          </label>
+          <label class="field">
+            <span>Observações — opcional</span>
+            <input type="text" id="notes" placeholder="Ex.: febre 38.5°C" />
+          </label>
+          <div class="sheet-actions">
+            <button type="button" class="btn-secondary" id="cancelBtn">Cancelar</button>
+            <button type="submit" class="btn-primary">Registrar dose</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="sheet-overlay hidden" id="backupOverlay">
+      <div class="sheet" role="dialog" aria-modal="true" aria-label="Backup e restauração">
+        <div class="sheet-handle"></div>
+        <h2 class="sheet-title">Backup e restauração</h2>
+        <p class="backup-status-msg" id="backupStatusMsg">Verificando salvamento automático…</p>
+
+        <div class="backup-section">
+          <p class="backup-label">Copie e guarde este backup (cole em Notas, por exemplo)</p>
+          <textarea class="backup-area" id="backupExport" readonly></textarea>
+          <div class="backup-actions">
+            <button type="button" class="btn-secondary" id="copyBackupBtn">Copiar</button>
+            <button type="button" class="btn-secondary" id="retestBtn">Testar novamente</button>
+          </div>
+        </div>
+
+        <div class="backup-section">
+          <p class="backup-label">Restaurar a partir de um backup colado</p>
+          <textarea class="backup-area" id="backupImport" placeholder="Cole aqui o texto do backup"></textarea>
+          <div class="backup-actions">
+            <button type="button" class="btn-primary" id="restoreBackupBtn">Restaurar</button>
+          </div>
+        </div>
+
+        <div class="sheet-actions">
+          <button type="button" class="btn-secondary" id="closeBackupBtn">Fechar</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="toast hidden" id="toast"></div>
+  </div>
+
+<script>
+(function () {
+  var STORAGE_KEY = 'medication-log';
+
+  var state = { childName: '', entries: [], medDefaults: {} };
+  var confirmDeleteId = null;
+
+  // DOM refs
+  var childNameDisplay = document.getElementById('childNameDisplay');
+  var childNameInput = document.getElementById('childNameInput');
+  var editNameBtn = document.getElementById('editNameBtn');
+  var backupBtn = document.getElementById('backupBtn');
+  var saveStatusEl = document.getElementById('saveStatus');
+  var statusSection = document.getElementById('statusSection');
+  var historyList = document.getElementById('historyList');
+  var fabAdd = document.getElementById('fabAdd');
+  var sheetOverlay = document.getElementById('sheetOverlay');
+  var doseForm = document.getElementById('doseForm');
+  var cancelBtn = document.getElementById('cancelBtn');
+  var medNameInput = document.getElementById('medName');
+  var amountInput = document.getElementById('amount');
+  var unitInput = document.getElementById('unit');
+  var intervalInput = document.getElementById('interval');
+  var timestampInput = document.getElementById('timestamp');
+  var notesInput = document.getElementById('notes');
+  var medListEl = document.getElementById('medList');
+  var toastEl = document.getElementById('toast');
+
+  var backupOverlay = document.getElementById('backupOverlay');
+  var backupExport = document.getElementById('backupExport');
+  var backupImport = document.getElementById('backupImport');
+  var copyBackupBtn = document.getElementById('copyBackupBtn');
+  var restoreBackupBtn = document.getElementById('restoreBackupBtn');
+  var closeBackupBtn = document.getElementById('closeBackupBtn');
+  var retestBtn = document.getElementById('retestBtn');
+  var backupStatusMsg = document.getElementById('backupStatusMsg');
+
+  function escapeHtml(str) {
+    return String(str).replace(/[&<>"']/g, function (c) {
+      return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c];
+    });
+  }
+
+  function showToast(msg) {
+    toastEl.textContent = msg;
+    toastEl.classList.remove('hidden');
+    setTimeout(function () { toastEl.classList.add('hidden'); }, 3500);
+  }
+
+  function setSaveStatus(kind, text) {
+    saveStatusEl.className = 'save-status ' + kind;
+    saveStatusEl.textContent = text;
+  }
+
+  function pad(n) { return String(n).padStart(2, '0'); }
+
+  function toLocalInputValue(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
+  }
+
+  function formatTime(d) {
+    return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  function formatDateHeading(d) {
+    var s = d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
+    return s.charAt(0).toUpperCase() + s.slice(1);
+  }
+
+  function dateKey(d) {
+    return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
+  }
+
+  // ---- Persistence ----
+  async function loadState() {
+    try {
+      var res = await window.storage.get(STORAGE_KEY, false);
+      if (res && res.value) {
+        var parsed = JSON.parse(res.value);
+        state.childName = parsed.childName || '';
+        state.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
+        state.medDefaults = parsed.medDefaults || {};
+      }
+    } catch (e) {
+      // Expected when no data exists yet on first run; also happens if the
+      // storage bridge itself is unavailable. Either way, start fresh here —
+      // the startup storage test below will tell the user which case it is.
+      console.log('No existing medication log found (or storage unavailable), starting fresh.', e);
+    }
+    render();
+  }
+
+  async function persist() {
+    try {
+      var result = await window.storage.set(STORAGE_KEY, JSON.stringify(state), false);
+      if (!result) {
+        setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⇅)');
+        showToast('Não foi possível salvar automaticamente. Use o backup manual (ícone ⇅).');
+      } else {
+        setSaveStatus('ok', 'Salvamento automático ativo ✓');
+      }
+    } catch (e) {
+      console.error('Failed to save medication log', e);
+      setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⇅)');
+      showToast('Não foi possível salvar automaticamente. Use o backup manual (ícone ⇅).');
+    }
+  }
+
+  async function testStorage() {
+    setSaveStatus('checking', 'Verificando salvamento…');
+    backupStatusMsg.className = 'backup-status-msg';
+    backupStatusMsg.textContent = 'Verificando salvamento automático…';
+    try {
+      var testVal = 'ping-' + Date.now();
+      await window.storage.set('storage-test-ping', testVal, false);
+      var res = await window.storage.get('storage-test-ping', false);
+      if (res && res.value === testVal) {
+        setSaveStatus('ok', 'Salvamento automático ativo ✓');
+        backupStatusMsg.className = 'backup-status-msg';
+        backupStatusMsg.textContent = 'O salvamento automático está funcionando neste dispositivo. Mesmo assim, vale copiar o backup abaixo de vez em quando como cópia extra de segurança.';
+        return true;
+      }
+      throw new Error('valor de teste não confere');
+    } catch (e) {
+      console.error('Storage test failed', e);
+      setSaveStatus('warn', '⚠ Salvamento automático indisponível — use o backup manual');
+      backupStatusMsg.className = 'backup-status-msg warn';
+      backupStatusMsg.textContent = 'O salvamento automático não está funcionando neste dispositivo agora (pode ser uma limitação temporária deste aplicativo). Copie o backup abaixo depois de registrar doses, e cole-o aqui para restaurar quando abrir de novo — inclusive em outro dispositivo ou no navegador.';
+      return false;
+    }
+  }
+
+  // ---- Rendering ----
+  function render() {
+    renderHeader();
+    renderStatus();
+    renderHistory();
+    renderMedList();
+  }
+
+  function renderHeader() {
+    childNameDisplay.textContent = state.childName || 'Toque em ✎ para adicionar o nome';
+  }
+
+  function renderMedList() {
+    var names = Object.keys(state.medDefaults);
+    medListEl.innerHTML = names.map(function (n) {
+      return '<option value="' + escapeHtml(n) + '"></option>';
+    }).join('');
+  }
+
+  function latestEntryFor(medName) {
+    var latest = null;
+    for (var i = 0; i < state.entries.length; i++) {
+      var e = state.entries[i];
+      if (e.medName === medName) {
+        if (!latest || new Date(e.timestamp) > new Date(latest.timestamp)) latest = e;
+      }
+    }
+    return latest;
+  }
+
+  function renderStatus() {
+    var tracked = Object.keys(state.medDefaults).filter(function (name) {
+      var d = state.medDefaults[name];
+      return d && d.intervalHours && d.intervalHours > 0 && latestEntryFor(name);
+    });
+
+    if (tracked.length === 0) {
+      statusSection.innerHTML = '<div class="status-empty">Nenhuma medicação com intervalo definido ainda. Ao registrar uma dose, informe o intervalo entre doses para acompanhar aqui quando a próxima estiver liberada.</div>';
+      return;
+    }
+
+    var r = 24, circumference = 2 * Math.PI * r;
+
+    statusSection.innerHTML = tracked.map(function (name) {
+      var def = state.medDefaults[name];
+      var last = latestEntryFor(name);
+      var lastTime = new Date(last.timestamp);
+      var totalMs = def.intervalHours * 3600000;
+      var elapsed = Date.now() - lastTime.getTime();
+      var progress = Math.max(0, Math.min(1, elapsed / totalMs));
+      var ready = elapsed >= totalMs;
+      var offset = circumference * (1 - progress);
+      var label, detail;
+
+      if (ready) {
+        label = 'OK';
+        detail = '<p class="status-detail ready">Pode dar agora</p>';
+      } else {
+        var remainMs = totalMs - elapsed;
+        var h = Math.floor(remainMs / 3600000);
+        var m = Math.floor((remainMs % 3600000) / 60000);
+        label = h + 'h' + pad(m);
+        var nextAt = new Date(lastTime.getTime() + totalMs);
+        detail = '<p class="status-detail waiting">Próxima dose às ' + formatTime(nextAt) + '</p>';
+      }
+
+      return '' +
+        '<div class="status-card" data-med="' + escapeHtml(name) + '">' +
+          '<button class="status-dismiss" data-med="' + escapeHtml(name) + '" aria-label="Parar de acompanhar ' + escapeHtml(name) + '">×</button>' +
+          '<div class="ring-wrap">' +
+            '<svg viewBox="0 0 56 56">' +
+              '<circle class="ring-bg" cx="28" cy="28" r="' + r + '"></circle>' +
+              '<circle class="ring-fg ' + (ready ? 'ready' : 'waiting') + '" cx="28" cy="28" r="' + r + '" ' +
+                'stroke-dasharray="' + circumference + '" stroke-dashoffset="' + offset + '"></circle>' +
+            '</svg>' +
+            '<div class="ring-label">' + label + '</div>' +
+          '</div>' +
+          '<div class="status-info">' +
+            '<p class="status-med-name">' + escapeHtml(name) + '</p>' +
+            detail +
+            '<p class="status-last">Última: ' + formatTime(lastTime) + ' · ' + last.amount + ' ' + escapeHtml(last.unit) + '</p>' +
+          '</div>' +
+        '</div>';
+    }).join('');
+  }
+
+  function renderHistory() {
+    if (state.entries.length === 0) {
+      historyList.innerHTML = '<p class="history-empty">Nenhuma dose registrada ainda. Toque em + para começar.</p>';
+      return;
+    }
+
+    var sorted = state.entries.slice().sort(function (a, b) {
+      return new Date(b.timestamp) - new Date(a.timestamp);
+    });
+
+    var groups = [];
+    var groupMap = {};
+    sorted.forEach(function (entry) {
+      var d = new Date(entry.timestamp);
+      var key = dateKey(d);
+      if (!groupMap[key]) {
+        groupMap[key] = { key: key, date: d, entries: [] };
+        groups.push(groupMap[key]);
+      }
+      groupMap[key].entries.push(entry);
+    });
+
+    historyList.innerHTML = groups.map(function (group) {
+      var rows = group.entries.map(function (entry) {
+        var t = new Date(entry.timestamp);
+        if (confirmDeleteId === entry.id) {
+          return '' +
+            '<div class="history-row">' +
+              '<div class="history-confirm">' +
+                '<span>Excluir esta dose?</span>' +
+                '<button class="confirm-no" data-id="' + entry.id + '">Cancelar</button>' +
+                '<button class="confirm-yes" data-id="' + entry.id + '">Excluir</button>' +
+              '</div>' +
+            '</div>';
+        }
+        return '' +
+          '<div class="history-row">' +
+            '<div class="history-time">' + formatTime(t) + '</div>' +
+            '<div class="history-main">' +
+              '<span class="history-med">' + escapeHtml(entry.medName) + '</span>' +
+              '<span class="history-dose">' + entry.amount + ' ' + escapeHtml(entry.unit) + '</span>' +
+              (entry.notes ? '<div class="history-notes">' + escapeHtml(entry.notes) + '</div>' : '') +
+            '</div>' +
+            '<button class="history-del" data-id="' + entry.id + '" aria-label="Excluir dose">🗑</button>' +
+          '</div>';
+      }).join('');
+
+      return '' +
+        '<div class="date-group">' +
+          '<p class="date-heading">' + formatDateHeading(group.date) + '</p>' +
+          rows +
+        '</div>';
+    }).join('');
+  }
+
+  // ---- Sheet (add dose) ----
+  function openSheet(prefill) {
+    doseForm.reset();
+    timestampInput.value = toLocalInputValue(new Date());
+    unitInput.value = 'ml';
+    if (prefill) {
+      medNameInput.value = prefill.medName;
+      unitInput.value = prefill.unit || 'ml';
+      if (prefill.intervalHours) intervalInput.value = prefill.intervalHours;
+    }
+    sheetOverlay.classList.remove('hidden');
+  }
+
+  function closeSheet() {
+    sheetOverlay.classList.add('hidden');
+  }
+
+  fabAdd.addEventListener('click', function () { openSheet(); });
+  cancelBtn.addEventListener('click', closeSheet);
+  sheetOverlay.addEventListener('click', function (e) {
+    if (e.target === sheetOverlay) closeSheet();
+  });
+  document.addEventListener('keydown', function (e) {
+    if (e.key === 'Escape') {
+      if (!sheetOverlay.classList.contains('hidden')) closeSheet();
+      if (!backupOverlay.classList.contains('hidden')) closeBackupSheet();
+    }
+  });
+
+  doseForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var medName = medNameInput.value.trim();
+    var amount = parseFloat(amountInput.value);
+    if (!medName || isNaN(amount)) return;
+    var unit = unitInput.value.trim() || 'ml';
+    var intervalRaw = intervalInput.value ? parseFloat(intervalInput.value) : null;
+    var timestamp = timestampInput.value ? new Date(timestampInput.value).toISOString() : new Date().toISOString();
+    var notes = notesInput.value.trim();
+
+    var id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
+
+    state.entries.push({ id: id, medName: medName, amount: amount, unit: unit, intervalHours: intervalRaw, timestamp: timestamp, notes: notes });
+
+    var prevDefault = state.medDefaults[medName] || {};
+    state.medDefaults[medName] = {
+      unit: unit,
+      intervalHours: (intervalRaw && intervalRaw > 0) ? intervalRaw : (prevDefault.intervalHours || null)
+    };
+
+    persist();
+    render();
+    closeSheet();
+  });
+
+  // ---- Backup / restore sheet ----
+  function openBackupSheet() {
+    backupExport.value = JSON.stringify(state, null, 2);
+    backupOverlay.classList.remove('hidden');
+    testStorage();
+  }
+  function closeBackupSheet() { backupOverlay.classList.add('hidden'); }
+
+  backupBtn.addEventListener('click', openBackupSheet);
+  closeBackupBtn.addEventListener('click', closeBackupSheet);
+  retestBtn.addEventListener('click', testStorage);
+  backupOverlay.addEventListener('click', function (e) {
+    if (e.target === backupOverlay) closeBackupSheet();
+  });
+
+  copyBackupBtn.addEventListener('click', async function () {
+    backupExport.focus();
+    backupExport.select();
+    backupExport.setSelectionRange(0, backupExport.value.length);
+    try {
+      await navigator.clipboard.writeText(backupExport.value);
+      showToast('Backup copiado!');
+    } catch (e1) {
+      try {
+        document.execCommand('copy');
+        showToast('Backup copiado!');
+      } catch (e2) {
+        showToast('Não copiou automaticamente — o texto já está selecionado, copie manualmente.');
+      }
+    }
+  });
+
+  restoreBackupBtn.addEventListener('click', function () {
+    var raw = backupImport.value.trim();
+    if (!raw) { showToast('Cole o backup antes de restaurar.'); return; }
+    try {
+      var parsed = JSON.parse(raw);
+      if (!parsed || !Array.isArray(parsed.entries)) throw new Error('formato inválido');
+      state.childName = parsed.childName || '';
+      state.entries = parsed.entries;
+      state.medDefaults = parsed.medDefaults || {};
+      persist();
+      render();
+      backupImport.value = '';
+      closeBackupSheet();
+      showToast('Dados restaurados!');
+    } catch (e) {
+      showToast('Backup inválido — confira se colou o texto completo.');
+    }
+  });
+
+  // ---- Delegated clicks: status cards + history actions ----
+  statusSection.addEventListener('click', function (e) {
+    var dismissBtn = e.target.closest('.status-dismiss');
+    if (dismissBtn) {
+      e.stopPropagation();
+      var med = dismissBtn.getAttribute('data-med');
+      if (state.medDefaults[med]) {
+        state.medDefaults[med].intervalHours = null;
+        persist();
+        render();
+      }
+      return;
+    }
+    var card = e.target.closest('.status-card');
+    if (card) {
+      var name = card.getAttribute('data-med');
+      var def = state.medDefaults[name] || {};
+      openSheet({ medName: name, unit: def.unit, intervalHours: def.intervalHours });
+    }
+  });
+
+  historyList.addEventListener('click', function (e) {
+    var delBtn = e.target.closest('.history-del');
+    if (delBtn) {
+      confirmDeleteId = delBtn.getAttribute('data-id');
+      renderHistory();
+      return;
+    }
+    var yesBtn = e.target.closest('.confirm-yes');
+    if (yesBtn) {
+      var idYes = yesBtn.getAttribute('data-id');
+      state.entries = state.entries.filter(function (en) { return en.id !== idYes; });
+      confirmDeleteId = null;
+      persist();
+      render();
+      return;
+    }
+    var noBtn = e.target.closest('.confirm-no');
+    if (noBtn) {
+      confirmDeleteId = null;
+      renderHistory();
+    }
+  });
+
+  // ---- Child name editing ----
+  editNameBtn.addEventListener('click', function () {
+    childNameInput.value = state.childName;
+    childNameInput.classList.remove('hidden');
+    childNameInput.focus();
+  });
+  childNameInput.addEventListener('keydown', function (e) {
+    if (e.key === 'Enter') { e.preventDefault(); childNameInput.blur(); }
+  });
+  childNameInput.addEventListener('blur', function () {
+    state.childName = childNameInput.value.trim();
+    persist();
+    renderHeader();
+    childNameInput.classList.add('hidden');
+  });
+
+  // Keep "next dose" countdown fresh
+  setInterval(renderStatus, 30000);
+
+  loadState().then(function () { testStorage(); });
+})();
+</script>
+</body>
+</html>
