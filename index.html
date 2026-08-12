@@ -2,7 +2,21 @@
 <html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, maximum-scale=5.0">
+<meta name="color-scheme" content="light dark">
+<meta name="format-detection" content="telephone=no">
+
+<!-- iOS "Add to Home Screen" / standalone web app behavior -->
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Medicação">
+<meta name="theme-color" media="(prefers-color-scheme: light)" content="#F5F7F1">
+<meta name="theme-color" media="(prefers-color-scheme: dark)" content="#13221C">
+
+<link rel="apple-touch-icon" href="data:image/png;base64,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">
+<link rel="icon" href="data:image/png;base64,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">
+
 <title>Controle de Medicação</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
@@ -20,26 +34,53 @@
     --rose-soft: #F3DCD7;
     --line: #E1E7DD;
     --radius: 18px;
+    --overlay-scrim: rgba(32,48,43,0.35);
   }
-  * { box-sizing: border-box; }
-  html, body { margin: 0; padding: 0; }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #13221C;
+      --bg-card: #1B2C25;
+      --ink: #ECF3EE;
+      --ink-soft: #93A89E;
+      --sage: #74BA98;
+      --sage-soft: rgba(116,186,152,0.16);
+      --amber: #E3A15C;
+      --amber-soft: rgba(227,161,92,0.16);
+      --rose: #E08972;
+      --rose-soft: rgba(224,137,114,0.16);
+      --line: #2A3D34;
+      --overlay-scrim: rgba(0,0,0,0.55);
+    }
+  }
+
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body { margin: 0; padding: 0; overscroll-behavior-y: none; }
   body {
     background: var(--bg);
     color: var(--ink);
     font-family: 'Inter', sans-serif;
     -webkit-font-smoothing: antialiased;
     min-height: 100vh;
+    transition: background-color .2s ease, color .2s ease;
   }
-  .app { max-width: 480px; margin: 0 auto; padding: 28px 20px 110px; position: relative; min-height: 100vh; }
+  button, input, select, textarea, a { touch-action: manipulation; }
+  button { -webkit-touch-callout: none; -webkit-user-select: none; user-select: none; }
+  button:active { opacity: 0.72; }
+
+  .app {
+    max-width: 480px;
+    margin: 0 auto;
+    position: relative;
+    min-height: 100vh;
+    padding: calc(28px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(110px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+  }
 
   .header { margin-bottom: 28px; }
   .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: var(--sage); margin: 0 0 6px; font-weight: 600; }
-  .title-row { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+  .title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.2; }
-  .icon-btn { border: none; background: none; color: var(--ink-soft); font-size: 16px; cursor: pointer; padding: 4px 6px; }
+  .icon-btn { border: none; background: none; color: var(--ink-soft); font-size: 20px; cursor: pointer; padding: 4px 6px; line-height: 1; flex-shrink: 0; }
   .icon-btn:hover { color: var(--sage); }
-  .child-name-input { margin-top: 10px; width: 100%; font-family: 'Fraunces', serif; font-size: 19px; padding: 9px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); }
-  .hidden { display: none !important; }
   .save-status { font-size: 12px; margin: 8px 0 0; font-family: 'IBM Plex Mono', monospace; }
   .save-status.ok { color: var(--sage); }
   .save-status.warn { color: var(--rose); }
@@ -48,8 +89,8 @@
   .status-section { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
   .status-empty { font-size: 14px; color: var(--ink-soft); background: var(--bg-card); border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; line-height: 1.5; }
 
-  .status-card { position: relative; display: flex; align-items: center; gap: 14px; background: var(--bg-card); border-radius: var(--radius); padding: 14px 40px 14px 16px; border: 1px solid var(--line); cursor: pointer; transition: border-color .15s ease; }
-  .status-card:hover { border-color: var(--sage); }
+  .status-card { position: relative; display: flex; align-items: center; gap: 14px; background: var(--bg-card); border-radius: var(--radius); padding: 14px 40px 14px 16px; border: 1px solid var(--line); cursor: pointer; transition: border-color .15s ease, background-color .2s ease; }
+  .status-card:active { opacity: 0.85; }
   .status-dismiss { position: absolute; top: 8px; right: 10px; border: none; background: none; color: var(--ink-soft); font-size: 15px; cursor: pointer; padding: 3px 6px; line-height: 1; }
   .status-dismiss:hover { color: var(--rose); }
 
@@ -88,36 +129,65 @@
 
   .history-empty { font-size: 14px; color: var(--ink-soft); padding: 10px 0; }
 
-  .fab { position: fixed; right: 24px; bottom: 28px; width: 58px; height: 58px; border-radius: 50%; background: var(--ink); color: #fff; border: none; font-size: 28px; line-height: 1; cursor: pointer; box-shadow: 0 8px 20px rgba(32,48,43,0.25); display: flex; align-items: center; justify-content: center; z-index: 20; }
-  .fab:hover { background: var(--sage); }
+  .app-footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); }
 
-  .sheet-overlay { position: fixed; inset: 0; background: rgba(32,48,43,0.35); display: flex; align-items: flex-end; z-index: 30; }
-  .sheet { background: var(--bg); width: 100%; max-width: 480px; margin: 0 auto; border-radius: 24px 24px 0 0; padding: 10px 20px 26px; max-height: 88vh; overflow-y: auto; animation: slideUp .25s ease; }
+  .fab {
+    position: fixed;
+    width: 58px; height: 58px; border-radius: 50%;
+    background: var(--ink); color: var(--bg);
+    border: none; font-size: 28px; line-height: 1; cursor: pointer;
+    box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+    display: flex; align-items: center; justify-content: center; z-index: 20;
+    right: calc(24px + env(safe-area-inset-right));
+    bottom: calc(28px + env(safe-area-inset-bottom));
+  }
+  .fab:active { opacity: 0.85; transform: scale(0.96); }
+
+  .sheet-overlay { position: fixed; inset: 0; background: var(--overlay-scrim); display: flex; align-items: flex-end; z-index: 30; }
+  .sheet {
+    background: var(--bg); width: 100%; max-width: 480px; margin: 0 auto;
+    border-radius: 24px 24px 0 0;
+    padding: 10px calc(20px + env(safe-area-inset-right)) calc(26px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
+    max-height: 88vh; overflow-y: auto; animation: slideUp .25s ease;
+  }
   @keyframes slideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   @media (prefers-reduced-motion: reduce) { .sheet { animation: none; } .ring-fg { transition: none; } }
   .sheet-handle { width: 36px; height: 4px; background: var(--line); border-radius: 2px; margin: 6px auto 14px; }
   .sheet-title { font-family: 'Fraunces', serif; font-size: 22px; font-weight: 600; margin: 0 0 16px; }
+
+  .settings-section { margin-bottom: 26px; padding-bottom: 22px; border-bottom: 1px solid var(--line); }
+  .settings-section:last-of-type { border-bottom: none; padding-bottom: 0; }
+  .settings-section h3 { font-family: 'Fraunces', serif; font-size: 16px; font-weight: 600; margin: 0 0 12px; }
+
   .field { display: flex; flex-direction: column; gap: 6px; margin-bottom: 14px; font-size: 13px; color: var(--ink-soft); font-weight: 500; }
-  .field input, .field select { font-family: 'Inter', sans-serif; font-size: 15px; color: var(--ink); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); width: 100%; }
+  .field input, .field select { font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink); background: var(--bg-card); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); width: 100%; }
   .field input:focus, .field select:focus { outline: 2px solid var(--sage); outline-offset: 1px; border-color: var(--sage); }
   .field-row { display: flex; gap: 12px; }
   .field-row .field { flex: 1; }
+
   .sheet-actions { display: flex; gap: 10px; margin-top: 6px; }
   .btn-primary, .btn-secondary { flex: 1; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
-  .btn-primary { background: var(--ink); color: #fff; }
-  .btn-primary:hover { background: var(--sage); }
+  .btn-primary { background: var(--ink); color: var(--bg); }
   .btn-secondary { background: var(--bg-card); color: var(--ink-soft); border: 1px solid var(--line); }
 
-  .backup-section { margin-bottom: 18px; }
   .backup-label { font-size: 13px; color: var(--ink-soft); font-weight: 500; margin: 0 0 6px; }
-  textarea.backup-area { width: 100%; min-height: 90px; font-family: 'IBM Plex Mono', monospace; font-size: 12px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); resize: vertical; }
-  .backup-actions { display: flex; gap: 8px; margin-top: 8px; }
-  .backup-status-msg { font-size: 13px; margin: 0 0 16px; padding: 10px 12px; border-radius: 10px; background: var(--sage-soft); color: var(--sage); line-height: 1.5; }
-  .backup-status-msg.warn { background: var(--rose-soft); color: var(--rose); }
+  textarea.backup-area { width: 100%; min-height: 90px; font-family: 'IBM Plex Mono', monospace; font-size: 16px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); resize: vertical; }
+  .backup-actions { display: flex; gap: 8px; margin-top: 8px; margin-bottom: 14px; }
+  .status-msg { font-size: 13px; margin: 0 0 14px; padding: 10px 12px; border-radius: 10px; background: var(--sage-soft); color: var(--sage); line-height: 1.5; }
+  .status-msg.warn { background: var(--rose-soft); color: var(--rose); }
 
-  .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: var(--rose); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 50; box-shadow: 0 6px 16px rgba(0,0,0,0.15); max-width: 90%; text-align: center; }
+  .tech-details { margin-top: 10px; font-size: 12px; color: var(--ink-soft); }
+  .tech-details summary { cursor: pointer; font-weight: 600; }
+  .tech-details code { display: block; margin-top: 8px; word-break: break-all; font-family: 'IBM Plex Mono', monospace; font-size: 11px; background: var(--bg-card); border: 1px solid var(--line); border-radius: 8px; padding: 8px; }
 
-  .app-footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); }
+  .toast {
+    position: fixed; left: 50%; transform: translateX(-50%);
+    top: calc(16px + env(safe-area-inset-top));
+    background: var(--rose); color: #fff; padding: 10px 16px; border-radius: 10px;
+    font-size: 13px; z-index: 50; box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+    max-width: 90%; text-align: center;
+  }
+  .hidden { display: none !important; }
 </style>
 </head>
 <body>
@@ -126,13 +196,10 @@
       <p class="eyebrow">CONTROLE DE MEDICAÇÃO</p>
       <div class="title-row">
         <h1 class="title" id="childNameDisplay">Carregando…</h1>
-        <button class="icon-btn" id="editNameBtn" aria-label="Editar nome">✎</button>
-        <button class="icon-btn" id="backupBtn" aria-label="Backup dos dados">⇅</button>
-        <button class="icon-btn" id="syncBtn" aria-label="Sincronizar entre aparelhos">☁</button>
+        <button class="icon-btn" id="settingsBtn" aria-label="Configurações">⚙</button>
       </div>
-      <input id="childNameInput" class="child-name-input hidden" placeholder="Nome da criança" />
       <p class="save-status checking" id="saveStatus">Verificando salvamento…</p>
-      <p class="save-status checking" id="cloudStatus">☁ Não configurado — toque para sincronizar entre aparelhos</p>
+      <p class="save-status checking" id="cloudStatus">☁ Não configurado</p>
     </header>
 
     <section class="status-section" id="statusSection" aria-label="Status das medicações"></section>
@@ -148,6 +215,7 @@
 
     <button class="fab" id="fabAdd" aria-label="Registrar nova dose">+</button>
 
+    <!-- Add dose -->
     <div class="sheet-overlay hidden" id="sheetOverlay">
       <div class="sheet" role="dialog" aria-modal="true" aria-label="Registrar dose">
         <div class="sheet-handle"></div>
@@ -195,62 +263,56 @@
       </div>
     </div>
 
-    <div class="sheet-overlay hidden" id="backupOverlay">
-      <div class="sheet" role="dialog" aria-modal="true" aria-label="Backup e restauração">
+    <!-- Settings (name, sync, backup — all centralized) -->
+    <div class="sheet-overlay hidden" id="settingsOverlay">
+      <div class="sheet" role="dialog" aria-modal="true" aria-label="Configurações">
         <div class="sheet-handle"></div>
-        <h2 class="sheet-title">Backup e restauração</h2>
-        <p class="backup-status-msg" id="backupStatusMsg">Verificando salvamento automático…</p>
+        <h2 class="sheet-title">Configurações</h2>
 
-        <div class="backup-section">
-          <p class="backup-label">Copie e guarde este backup (cole em Notas, por exemplo)</p>
-          <textarea class="backup-area" id="backupExport" readonly></textarea>
-          <div class="backup-actions">
-            <button type="button" class="btn-secondary" id="copyBackupBtn">Copiar</button>
-            <button type="button" class="btn-secondary" id="retestBtn">Testar novamente</button>
-          </div>
-        </div>
-
-        <div class="backup-section">
-          <p class="backup-label">Restaurar a partir de um backup colado</p>
-          <textarea class="backup-area" id="backupImport" placeholder="Cole aqui o texto do backup"></textarea>
-          <div class="backup-actions">
-            <button type="button" class="btn-primary" id="restoreBackupBtn">Restaurar</button>
-          </div>
-        </div>
-
-        <div class="sheet-actions">
-          <button type="button" class="btn-secondary" id="closeBackupBtn">Fechar</button>
-        </div>
-      </div>
-    </div>
-
-    <div class="sheet-overlay hidden" id="syncOverlay">
-      <div class="sheet" role="dialog" aria-modal="true" aria-label="Sincronização entre aparelhos">
-        <div class="sheet-handle"></div>
-        <h2 class="sheet-title">Sincronização entre aparelhos</h2>
-        <p class="backup-status-msg" id="syncStatusMsg">Usa uma planilha do Google Sheets (via Apps Script) como "cofre" para guardar os mesmos dados em todos os aparelhos conectados. Veja o passo a passo de configuração que te mandei.</p>
-
-        <div class="backup-section">
+        <div class="settings-section">
+          <h3>Nome da criança</h3>
           <label class="field">
-            <span>URL do Web App (Apps Script)</span>
-            <input type="text" id="syncUrl" placeholder="https://script.google.com/macros/s/.../exec" autocomplete="off" />
+            <span>Nome</span>
+            <input type="text" id="childNameInput" placeholder="Nome da criança" />
           </label>
+        </div>
+
+        <div class="settings-section">
+          <h3>Sincronização entre aparelhos</h3>
+          <p class="status-msg" id="syncStatusMsg">Verificando…</p>
           <label class="field">
             <span>Senha de sincronização</span>
-            <input type="password" id="syncToken" placeholder="A mesma senha definida no script" autocomplete="off" />
+            <input type="password" id="syncToken" placeholder="A senha combinada com quem vai usar o app" autocomplete="off" />
           </label>
           <div class="backup-actions">
             <button type="button" class="btn-primary" id="syncConnectBtn">Conectar</button>
             <button type="button" class="btn-secondary" id="syncNowBtn">Sincronizar agora</button>
           </div>
           <div class="backup-actions">
-            <button type="button" class="btn-secondary" id="syncCopyIdBtn">Copiar URL</button>
             <button type="button" class="btn-secondary" id="syncDisconnectBtn">Desconectar</button>
+          </div>
+          <details class="tech-details">
+            <summary>Detalhes técnicos</summary>
+            <code id="techWebAppUrl"></code>
+          </details>
+        </div>
+
+        <div class="settings-section">
+          <h3>Backup manual</h3>
+          <p class="backup-label">Copie e guarde este backup (cole em Notas, por exemplo)</p>
+          <textarea class="backup-area" id="backupExport" readonly></textarea>
+          <div class="backup-actions">
+            <button type="button" class="btn-secondary" id="copyBackupBtn">Copiar</button>
+          </div>
+          <p class="backup-label">Restaurar a partir de um backup colado</p>
+          <textarea class="backup-area" id="backupImport" placeholder="Cole aqui o texto do backup"></textarea>
+          <div class="backup-actions">
+            <button type="button" class="btn-secondary" id="restoreBackupBtn">Restaurar</button>
           </div>
         </div>
 
         <div class="sheet-actions">
-          <button type="button" class="btn-secondary" id="closeSyncBtn">Fechar</button>
+          <button type="button" class="btn-secondary" id="closeSettingsBtn">Fechar</button>
         </div>
       </div>
     </div>
@@ -262,14 +324,17 @@
 (function () {
   // Bump this on every deploy so it's easy to confirm GitHub Pages
   // is actually serving the latest build (shown in the footer).
-  var APP_VERSION = 'v6 — 2026-08-12';
+  var APP_VERSION = 'v7 — 2026-08-12';
+
+  // Fixed backend URL — embedded so people you share the app with only
+  // ever need to enter the sync password, never a URL.
+  var CLOUD_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzVOGe9YvnW9GIN6DnzIXu_-VzNutd6PcQlzAq40fiNDxsgvLlH74AYdXhBKv0MVuO6eQ/exec';
 
   var STORAGE_KEY = 'medication-log';
 
-  // Standalone (GitHub Pages) storage backend: mirrors the {key, value, shared}
-  // shape and reject-on-missing-key behavior of Claude's artifact storage API,
-  // but backed by the browser's own localStorage since this file runs outside
-  // the Claude sandbox once published.
+  // Standalone (GitHub Pages) storage backend: mirrors the {key, value}
+  // shape and reject-on-missing-key behavior of Claude's artifact storage
+  // API, but backed by the browser's own localStorage.
   var storage = {
     get: function (key) {
       return new Promise(function (resolve, reject) {
@@ -296,9 +361,9 @@
   // DOM refs
   var childNameDisplay = document.getElementById('childNameDisplay');
   var childNameInput = document.getElementById('childNameInput');
-  var editNameBtn = document.getElementById('editNameBtn');
-  var backupBtn = document.getElementById('backupBtn');
+  var settingsBtn = document.getElementById('settingsBtn');
   var saveStatusEl = document.getElementById('saveStatus');
+  var cloudStatusEl = document.getElementById('cloudStatus');
   var statusSection = document.getElementById('statusSection');
   var historyList = document.getElementById('historyList');
   var fabAdd = document.getElementById('fabAdd');
@@ -314,26 +379,18 @@
   var medListEl = document.getElementById('medList');
   var toastEl = document.getElementById('toast');
 
-  var backupOverlay = document.getElementById('backupOverlay');
+  var settingsOverlay = document.getElementById('settingsOverlay');
+  var closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  var syncStatusMsg = document.getElementById('syncStatusMsg');
+  var syncTokenInput = document.getElementById('syncToken');
+  var syncConnectBtn = document.getElementById('syncConnectBtn');
+  var syncNowBtn = document.getElementById('syncNowBtn');
+  var syncDisconnectBtn = document.getElementById('syncDisconnectBtn');
+  var techWebAppUrl = document.getElementById('techWebAppUrl');
   var backupExport = document.getElementById('backupExport');
   var backupImport = document.getElementById('backupImport');
   var copyBackupBtn = document.getElementById('copyBackupBtn');
   var restoreBackupBtn = document.getElementById('restoreBackupBtn');
-  var closeBackupBtn = document.getElementById('closeBackupBtn');
-  var retestBtn = document.getElementById('retestBtn');
-  var backupStatusMsg = document.getElementById('backupStatusMsg');
-
-  var syncBtn = document.getElementById('syncBtn');
-  var cloudStatusEl = document.getElementById('cloudStatus');
-  var syncOverlay = document.getElementById('syncOverlay');
-  var syncStatusMsg = document.getElementById('syncStatusMsg');
-  var syncUrlInput = document.getElementById('syncUrl');
-  var syncTokenInput = document.getElementById('syncToken');
-  var syncConnectBtn = document.getElementById('syncConnectBtn');
-  var syncNowBtn = document.getElementById('syncNowBtn');
-  var syncCopyIdBtn = document.getElementById('syncCopyIdBtn');
-  var syncDisconnectBtn = document.getElementById('syncDisconnectBtn');
-  var closeSyncBtn = document.getElementById('closeSyncBtn');
 
   function escapeHtml(str) {
     return String(str).replace(/[&<>"']/g, function (c) {
@@ -351,13 +408,12 @@
     saveStatusEl.className = 'save-status ' + kind;
     saveStatusEl.textContent = text;
   }
-
   function setCloudStatus(kind, text) {
     cloudStatusEl.className = 'save-status ' + kind;
     cloudStatusEl.textContent = text;
   }
 
-  // ---- Cloud sync config (Google Apps Script Web App) ----
+  // ---- Cloud sync config (just the password — URL is fixed above) ----
   var CLOUD_CONFIG_KEY = 'medication-log-cloud-config';
 
   function loadCloudConfig() {
@@ -373,28 +429,25 @@
     try { localStorage.removeItem(CLOUD_CONFIG_KEY); } catch (e) {}
   }
 
-  var cloudConfig = loadCloudConfig(); // { url, token } | null — url = Apps Script Web App URL
+  var cloudConfig = loadCloudConfig(); // { token } | null
 
   function pad(n) { return String(n).padStart(2, '0'); }
 
   function toLocalInputValue(d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()) + 'T' + pad(d.getHours()) + ':' + pad(d.getMinutes());
   }
-
   function formatTime(d) {
     return d.toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
   }
-
   function formatDateHeading(d) {
     var s = d.toLocaleDateString('pt-BR', { weekday: 'long', day: 'numeric', month: 'long' });
     return s.charAt(0).toUpperCase() + s.slice(1);
   }
-
   function dateKey(d) {
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
-  // ---- Persistence ----
+  // ---- Local persistence ----
   async function loadState() {
     try {
       var res = await storage.get(STORAGE_KEY);
@@ -405,9 +458,6 @@
         state.medDefaults = parsed.medDefaults || {};
       }
     } catch (e) {
-      // Expected when no data exists yet on first run, or if localStorage is
-      // blocked (e.g. private/incognito browsing). Either way, start fresh —
-      // the startup storage test below will tell the user which case it is.
       console.log('No existing medication log found (or storage unavailable), starting fresh.', e);
     }
     render();
@@ -417,18 +467,36 @@
     try {
       var result = await storage.set(STORAGE_KEY, JSON.stringify(state));
       if (!result) {
-        setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⇅)');
-        showToast('Não foi possível salvar automaticamente. Use o backup manual (ícone ⇅).');
+        setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⚙)');
+        showToast('Não foi possível salvar automaticamente. Use o backup manual (⚙).');
       } else {
         setSaveStatus('ok', 'Salvamento automático ativo ✓');
       }
     } catch (e) {
       console.error('Failed to save medication log', e);
-      setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⇅)');
-      showToast('Não foi possível salvar automaticamente. Use o backup manual (ícone ⇅).');
+      setSaveStatus('warn', '⚠ Não foi possível salvar — use o backup manual (⚙)');
+      showToast('Não foi possível salvar automaticamente. Use o backup manual (⚙).');
     }
-    if (cloudConfig && cloudConfig.url && cloudConfig.token) {
+    if (cloudConfig && cloudConfig.token) {
       cloudPush();
+    }
+  }
+
+  async function testStorage() {
+    setSaveStatus('checking', 'Verificando salvamento…');
+    try {
+      var testVal = 'ping-' + Date.now();
+      await storage.set('storage-test-ping', testVal);
+      var res = await storage.get('storage-test-ping');
+      if (res && res.value === testVal) {
+        setSaveStatus('ok', 'Salvamento automático ativo ✓');
+        return true;
+      }
+      throw new Error('valor de teste não confere');
+    } catch (e) {
+      console.error('Storage test failed', e);
+      setSaveStatus('warn', '⚠ Salvamento automático indisponível — use o backup manual (⚙)');
+      return false;
     }
   }
 
@@ -442,9 +510,8 @@
   }
 
   // Apps Script Web Apps don't send CORS headers on their responses, so a
-  // normal fetch() can't read the JSON back even when everything else is
-  // configured correctly. Script-tag (JSONP) loads aren't subject to CORS,
-  // so that's what we use to actually read data cross-origin.
+  // normal fetch() often can't read the JSON back. Script-tag (JSONP) loads
+  // aren't subject to CORS, so that's the reliable fallback.
   function jsonpFetch_(url) {
     return new Promise(function (resolve, reject) {
       var cbName = '__medSyncCb_' + Date.now() + '_' + Math.floor(Math.random() * 1e6);
@@ -483,12 +550,9 @@
   }
 
   async function cloudFetchLatest() {
-    var url = withToken_(cloudConfig.url);
+    var url = withToken_(CLOUD_WEBAPP_URL);
     var directErrMsg = 'não tentado';
 
-    // Try a plain fetch first — Apps Script redirects to a googleusercontent.com
-    // URL to actually serve the content, and that target often does support
-    // CORS for "Anyone" access web apps, so this frequently just works.
     try {
       var res = await fetch(url, { method: 'GET' });
       if (res.ok) {
@@ -502,9 +566,8 @@
       console.log('Direct fetch failed, falling back to JSONP.', directErr);
     }
 
-    // Fallback: script-tag (JSONP) load, which isn't subject to CORS at all.
     try {
-      var data2 = await jsonpFetch_(cloudConfig.url);
+      var data2 = await jsonpFetch_(CLOUD_WEBAPP_URL);
       if (data2 && data2.error) throw new Error(data2.error === 'unauthorized' ? 'senha incorreta' : data2.error);
       return data2;
     } catch (jsonpErr) {
@@ -513,38 +576,33 @@
     }
   }
 
-  // POST responses also lack CORS headers, so we can't read them back either.
-  // We send with mode: 'no-cors' (the write still reaches the server), then
-  // read the data back via JSONP to confirm it actually landed.
   async function cloudUpdate(data) {
-    await fetch(withToken_(cloudConfig.url), {
+    await fetch(withToken_(CLOUD_WEBAPP_URL), {
       method: 'POST',
       mode: 'no-cors',
       headers: { 'Content-Type': 'text/plain;charset=utf-8' },
       body: JSON.stringify(data)
     });
-    await new Promise(function (r) { setTimeout(r, 400); }); // give the script a moment to finish writing
+    await new Promise(function (r) { setTimeout(r, 400); });
     var confirmed = await cloudFetchLatest();
     var matches = confirmed && JSON.stringify(confirmed.entries || []) === JSON.stringify(data.entries || []);
     if (!matches) throw new Error('não foi possível confirmar que os dados chegaram à planilha');
     return true;
   }
 
-  // Push the current local state up to the cloud bin (fire-and-forget from callers).
   async function cloudPush() {
     try {
       await cloudUpdate(state);
       setCloudStatus('ok', '☁ Sincronizado às ' + formatTime(new Date()));
     } catch (e) {
       console.error('Cloud push failed', e);
-      setCloudStatus('warn', '⚠ Falha ao sincronizar com a nuvem');
+      setCloudStatus('warn', '⚠ Falha ao sincronizar: ' + (e && e.message ? e.message : String(e)));
     }
   }
 
-  // Pull the latest cloud data and use it as the current state (last-write-wins).
   async function cloudPull() {
-    if (!cloudConfig || !cloudConfig.url || !cloudConfig.token) {
-      setCloudStatus('checking', '☁ Não configurado — toque para sincronizar entre aparelhos');
+    if (!cloudConfig || !cloudConfig.token) {
+      setCloudStatus('checking', '☁ Não configurado');
       return false;
     }
     setCloudStatus('checking', '☁ Sincronizando…');
@@ -566,30 +624,6 @@
     }
   }
 
-  async function testStorage() {
-    setSaveStatus('checking', 'Verificando salvamento…');
-    backupStatusMsg.className = 'backup-status-msg';
-    backupStatusMsg.textContent = 'Verificando salvamento automático…';
-    try {
-      var testVal = 'ping-' + Date.now();
-      await storage.set('storage-test-ping', testVal);
-      var res = await storage.get('storage-test-ping');
-      if (res && res.value === testVal) {
-        setSaveStatus('ok', 'Salvamento automático ativo ✓');
-        backupStatusMsg.className = 'backup-status-msg';
-        backupStatusMsg.textContent = 'O salvamento automático está funcionando neste navegador. Os dados ficam salvos neste dispositivo/navegador específico — copie o backup abaixo se quiser levar os dados para outro aparelho ou navegador, ou como cópia extra de segurança.';
-        return true;
-      }
-      throw new Error('valor de teste não confere');
-    } catch (e) {
-      console.error('Storage test failed', e);
-      setSaveStatus('warn', '⚠ Salvamento automático indisponível — use o backup manual');
-      backupStatusMsg.className = 'backup-status-msg warn';
-      backupStatusMsg.textContent = 'O salvamento automático não está funcionando neste navegador agora (modo privado/anônimo costuma bloquear isso). Copie o backup abaixo depois de registrar doses, e cole-o aqui para restaurar quando abrir de novo.';
-      return false;
-    }
-  }
-
   // ---- Rendering ----
   function render() {
     renderHeader();
@@ -599,7 +633,7 @@
   }
 
   function renderHeader() {
-    childNameDisplay.textContent = state.childName || 'Toque em ✎ para adicionar o nome';
+    childNameDisplay.textContent = state.childName || 'Controle de Medicação';
   }
 
   function renderMedList() {
@@ -743,10 +777,7 @@
     }
     sheetOverlay.classList.remove('hidden');
   }
-
-  function closeSheet() {
-    sheetOverlay.classList.add('hidden');
-  }
+  function closeSheet() { sheetOverlay.classList.add('hidden'); }
 
   fabAdd.addEventListener('click', function () { openSheet(); });
   cancelBtn.addEventListener('click', closeSheet);
@@ -756,8 +787,7 @@
   document.addEventListener('keydown', function (e) {
     if (e.key === 'Escape') {
       if (!sheetOverlay.classList.contains('hidden')) closeSheet();
-      if (!backupOverlay.classList.contains('hidden')) closeBackupSheet();
-      if (!syncOverlay.classList.contains('hidden')) closeSyncSheet();
+      if (!settingsOverlay.classList.contains('hidden')) closeSettings();
     }
   });
 
@@ -786,19 +816,88 @@
     closeSheet();
   });
 
-  // ---- Backup / restore sheet ----
-  function openBackupSheet() {
+  // ---- Settings sheet (name + sync + backup, centralized) ----
+  function openSettings() {
+    childNameInput.value = state.childName;
+    syncTokenInput.value = cloudConfig ? (cloudConfig.token || '') : '';
+    techWebAppUrl.textContent = CLOUD_WEBAPP_URL;
     backupExport.value = JSON.stringify(state, null, 2);
-    backupOverlay.classList.remove('hidden');
+    settingsOverlay.classList.remove('hidden');
     testStorage();
+    if (cloudConfig && cloudConfig.token) {
+      syncStatusMsg.className = 'status-msg';
+      syncStatusMsg.textContent = 'Conectado. Toque em "Sincronizar agora" para atualizar.';
+    } else {
+      syncStatusMsg.className = 'status-msg';
+      syncStatusMsg.textContent = 'Ainda não conectado. Digite a senha combinada e toque em Conectar.';
+    }
   }
-  function closeBackupSheet() { backupOverlay.classList.add('hidden'); }
+  function closeSettings() {
+    state.childName = childNameInput.value.trim();
+    persist();
+    renderHeader();
+    settingsOverlay.classList.add('hidden');
+  }
 
-  backupBtn.addEventListener('click', openBackupSheet);
-  closeBackupBtn.addEventListener('click', closeBackupSheet);
-  retestBtn.addEventListener('click', testStorage);
-  backupOverlay.addEventListener('click', function (e) {
-    if (e.target === backupOverlay) closeBackupSheet();
+  settingsBtn.addEventListener('click', openSettings);
+  closeSettingsBtn.addEventListener('click', closeSettings);
+  settingsOverlay.addEventListener('click', function (e) {
+    if (e.target === settingsOverlay) closeSettings();
+  });
+
+  syncConnectBtn.addEventListener('click', async function () {
+    var token = syncTokenInput.value.trim();
+    if (!token) { showToast('Digite a senha de sincronização antes de conectar.'); return; }
+
+    cloudConfig = { token: token };
+    saveCloudConfig(cloudConfig);
+
+    syncStatusMsg.className = 'status-msg';
+    syncStatusMsg.textContent = 'Conectando…';
+
+    try {
+      var data = await cloudFetchLatest();
+      if (data && Array.isArray(data.entries) && data.entries.length > 0) {
+        state.childName = data.childName || '';
+        state.entries = data.entries;
+        state.medDefaults = data.medDefaults || {};
+        await storage.set(STORAGE_KEY, JSON.stringify(state));
+        render();
+        childNameInput.value = state.childName;
+        syncStatusMsg.textContent = 'Conectado! Os dados deste aparelho foram atualizados com os da planilha.';
+      } else {
+        await cloudUpdate(state);
+        syncStatusMsg.textContent = 'Conectado! Os dados deste aparelho foram enviados para a planilha.';
+      }
+      setCloudStatus('ok', '☁ Sincronizado às ' + formatTime(new Date()));
+      showToast('Conectado à sincronização.');
+    } catch (e) {
+      console.error('Sync connect failed', e);
+      syncStatusMsg.className = 'status-msg warn';
+      syncStatusMsg.textContent = 'Não foi possível conectar. Detalhe técnico: ' + (e && e.message ? e.message : String(e));
+      setCloudStatus('warn', '⚠ Falha ao sincronizar com a nuvem');
+    }
+  });
+
+  syncNowBtn.addEventListener('click', async function () {
+    if (!cloudConfig || !cloudConfig.token) {
+      showToast('Conecte a sincronização primeiro.');
+      return;
+    }
+    var ok = await cloudPull();
+    syncStatusMsg.className = ok ? 'status-msg' : 'status-msg warn';
+    syncStatusMsg.textContent = ok ? 'Sincronizado agora mesmo.' : 'Falha ao sincronizar — tente de novo.';
+    showToast(ok ? 'Sincronizado!' : 'Falha ao sincronizar — tente de novo.');
+  });
+
+  syncDisconnectBtn.addEventListener('click', function () {
+    clearCloudConfig();
+    cloudConfig = null;
+    syncTokenInput.value = '';
+    setCloudStatus('checking', '☁ Não configurado');
+    syncStatusMsg.className = 'status-msg';
+    syncStatusMsg.textContent = 'Desconectado. Os dados continuam salvos neste aparelho normalmente.';
+    showToast('Desconectado da nuvem.');
   });
 
   copyBackupBtn.addEventListener('click', async function () {
@@ -829,100 +928,12 @@
       state.medDefaults = parsed.medDefaults || {};
       persist();
       render();
+      childNameInput.value = state.childName;
       backupImport.value = '';
-      closeBackupSheet();
       showToast('Dados restaurados!');
     } catch (e) {
       showToast('Backup inválido — confira se colou o texto completo.');
     }
-  });
-
-  // ---- Sync sheet (Google Apps Script Web App) ----
-  function refreshSyncFields() {
-    syncUrlInput.value = cloudConfig ? (cloudConfig.url || '') : '';
-    syncTokenInput.value = cloudConfig ? (cloudConfig.token || '') : '';
-  }
-  function openSyncSheet() {
-    refreshSyncFields();
-    syncOverlay.classList.remove('hidden');
-  }
-  function closeSyncSheet() { syncOverlay.classList.add('hidden'); }
-
-  syncBtn.addEventListener('click', openSyncSheet);
-  closeSyncBtn.addEventListener('click', closeSyncSheet);
-  syncOverlay.addEventListener('click', function (e) {
-    if (e.target === syncOverlay) closeSyncSheet();
-  });
-
-  syncConnectBtn.addEventListener('click', async function () {
-    var url = syncUrlInput.value.trim();
-    var token = syncTokenInput.value.trim();
-    if (!url || !token) { showToast('Preencha a URL do Web App e a senha antes de conectar.'); return; }
-
-    cloudConfig = { url: url, token: token };
-    saveCloudConfig(cloudConfig);
-
-    syncStatusMsg.className = 'backup-status-msg';
-    syncStatusMsg.textContent = 'Conectando…';
-
-    try {
-      var data = await cloudFetchLatest();
-      if (data && Array.isArray(data.entries) && data.entries.length > 0) {
-        state.childName = data.childName || '';
-        state.entries = data.entries;
-        state.medDefaults = data.medDefaults || {};
-        await storage.set(STORAGE_KEY, JSON.stringify(state));
-        render();
-        syncStatusMsg.textContent = 'Conectado! Os dados deste aparelho foram atualizados com os da planilha.';
-      } else {
-        // Planilha vazia — provavelmente o primeiro aparelho a conectar. Envia os dados locais como ponto de partida.
-        await cloudUpdate(state);
-        syncStatusMsg.textContent = 'Conectado! Os dados deste aparelho foram enviados para a planilha.';
-      }
-      setCloudStatus('ok', '☁ Sincronizado às ' + formatTime(new Date()));
-      showToast('Conectado à sincronização.');
-    } catch (e) {
-      console.error('Sync connect failed', e);
-      syncStatusMsg.className = 'backup-status-msg warn';
-      syncStatusMsg.textContent = 'Não foi possível conectar. Detalhe técnico: ' + (e && e.message ? e.message : String(e));
-      setCloudStatus('warn', '⚠ Falha ao sincronizar com a nuvem');
-    }
-  });
-
-  syncNowBtn.addEventListener('click', async function () {
-    if (!cloudConfig || !cloudConfig.url || !cloudConfig.token) {
-      showToast('Conecte a sincronização primeiro.');
-      return;
-    }
-    var ok = await cloudPull();
-    showToast(ok ? 'Sincronizado!' : 'Falha ao sincronizar — tente de novo.');
-  });
-
-  syncCopyIdBtn.addEventListener('click', async function () {
-    if (!cloudConfig || !cloudConfig.url) { showToast('Nenhum Web App conectado ainda.'); return; }
-    try {
-      await navigator.clipboard.writeText(cloudConfig.url);
-      showToast('URL copiada!');
-    } catch (e) {
-      syncUrlInput.focus();
-      syncUrlInput.select();
-      try {
-        document.execCommand('copy');
-        showToast('URL copiada!');
-      } catch (e2) {
-        showToast('Não copiou automaticamente — a URL já está selecionada, copie manualmente.');
-      }
-    }
-  });
-
-  syncDisconnectBtn.addEventListener('click', function () {
-    clearCloudConfig();
-    cloudConfig = null;
-    refreshSyncFields();
-    setCloudStatus('checking', '☁ Não configurado — toque para sincronizar entre aparelhos');
-    syncStatusMsg.className = 'backup-status-msg';
-    syncStatusMsg.textContent = 'Desconectado. Os dados continuam salvos neste aparelho normalmente.';
-    showToast('Desconectado da nuvem.');
   });
 
   // ---- Delegated clicks: status cards + history actions ----
@@ -969,22 +980,6 @@
     }
   });
 
-  // ---- Child name editing ----
-  editNameBtn.addEventListener('click', function () {
-    childNameInput.value = state.childName;
-    childNameInput.classList.remove('hidden');
-    childNameInput.focus();
-  });
-  childNameInput.addEventListener('keydown', function (e) {
-    if (e.key === 'Enter') { e.preventDefault(); childNameInput.blur(); }
-  });
-  childNameInput.addEventListener('blur', function () {
-    state.childName = childNameInput.value.trim();
-    persist();
-    renderHeader();
-    childNameInput.classList.add('hidden');
-  });
-
   // Keep "next dose" countdown fresh
   setInterval(renderStatus, 30000);
 
@@ -992,7 +987,7 @@
     var versionEl = document.getElementById('appVersion');
     if (versionEl) versionEl.textContent = APP_VERSION;
     await testStorage();
-    if (cloudConfig && cloudConfig.url && cloudConfig.token) {
+    if (cloudConfig && cloudConfig.token) {
       await cloudPull();
     }
   });
