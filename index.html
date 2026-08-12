@@ -75,7 +75,7 @@
     padding: calc(28px + env(safe-area-inset-top)) calc(20px + env(safe-area-inset-right)) calc(110px + env(safe-area-inset-bottom)) calc(20px + env(safe-area-inset-left));
   }
 
-  .header { margin-bottom: 28px; }
+  .header { margin-bottom: 20px; }
   .eyebrow { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.14em; color: var(--sage); margin: 0 0 6px; font-weight: 600; }
   .title-row { display: flex; align-items: center; justify-content: space-between; gap: 10px; }
   .title { font-family: 'Fraunces', serif; font-weight: 600; font-size: 26px; margin: 0; line-height: 1.2; }
@@ -85,6 +85,12 @@
   .save-status.ok { color: var(--sage); }
   .save-status.warn { color: var(--rose); }
   .save-status.checking { color: var(--ink-soft); }
+
+  .profile-tabs { display: flex; gap: 8px; overflow-x: auto; margin-bottom: 28px; padding-bottom: 2px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+  .profile-tabs::-webkit-scrollbar { display: none; }
+  .profile-tab { flex-shrink: 0; padding: 9px 16px; border-radius: 999px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink-soft); font-family: 'Inter', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer; white-space: nowrap; }
+  .profile-tab.active { background: var(--ink); color: var(--bg); border-color: var(--ink); }
+  .profile-tab-add { flex-shrink: 0; width: 38px; height: 38px; border-radius: 50%; border: 1px dashed var(--line); background: none; color: var(--ink-soft); font-size: 18px; display: flex; align-items: center; justify-content: center; }
 
   .status-section { display: flex; flex-direction: column; gap: 12px; margin-bottom: 32px; }
   .status-empty { font-size: 14px; color: var(--ink-soft); background: var(--bg-card); border: 1px dashed var(--line); border-radius: var(--radius); padding: 18px; line-height: 1.5; }
@@ -165,10 +171,17 @@
   .field-row { display: flex; gap: 12px; }
   .field-row .field { flex: 1; }
 
+  .profile-row { display: flex; gap: 8px; align-items: center; margin-bottom: 10px; }
+  .profile-row input { flex: 1; font-family: 'Inter', sans-serif; font-size: 16px; color: var(--ink); background: var(--bg-card); padding: 11px 12px; border-radius: 10px; border: 1px solid var(--line); }
+  .profile-row input:focus { outline: 2px solid var(--sage); outline-offset: 1px; border-color: var(--sage); }
+  .profile-del-btn { border: none; background: none; color: var(--ink-soft); font-size: 16px; padding: 8px; flex-shrink: 0; }
+  .profile-del-btn:hover { color: var(--rose); }
+
   .sheet-actions { display: flex; gap: 10px; margin-top: 6px; }
   .btn-primary, .btn-secondary { flex: 1; padding: 13px; border-radius: 12px; font-size: 15px; font-weight: 600; border: none; cursor: pointer; font-family: 'Inter', sans-serif; }
   .btn-primary { background: var(--ink); color: var(--bg); }
   .btn-secondary { background: var(--bg-card); color: var(--ink-soft); border: 1px solid var(--line); }
+  .btn-block { width: 100%; margin-bottom: 6px; }
 
   .backup-label { font-size: 13px; color: var(--ink-soft); font-weight: 500; margin: 0 0 6px; }
   textarea.backup-area { width: 100%; min-height: 90px; font-family: 'IBM Plex Mono', monospace; font-size: 16px; padding: 10px; border-radius: 10px; border: 1px solid var(--line); background: var(--bg-card); color: var(--ink); resize: vertical; }
@@ -195,12 +208,14 @@
     <header class="header">
       <p class="eyebrow">CONTROLE DE MEDICAÇÃO</p>
       <div class="title-row">
-        <h1 class="title" id="childNameDisplay">Carregando…</h1>
+        <h1 class="title" id="profileNameDisplay">Carregando…</h1>
         <button class="icon-btn" id="settingsBtn" aria-label="Configurações">⚙</button>
       </div>
       <p class="save-status checking" id="saveStatus">Verificando salvamento…</p>
       <p class="save-status checking" id="cloudStatus">☁ Não configurado</p>
     </header>
+
+    <div class="profile-tabs" id="profileTabs"></div>
 
     <section class="status-section" id="statusSection" aria-label="Status das medicações"></section>
 
@@ -263,18 +278,20 @@
       </div>
     </div>
 
-    <!-- Settings (name, sync, backup — all centralized) -->
+    <!-- Settings (people, sync, backup — all centralized) -->
     <div class="sheet-overlay hidden" id="settingsOverlay">
       <div class="sheet" role="dialog" aria-modal="true" aria-label="Configurações">
         <div class="sheet-handle"></div>
         <h2 class="sheet-title">Configurações</h2>
 
         <div class="settings-section">
-          <h3>Nome da criança</h3>
-          <label class="field">
-            <span>Nome</span>
-            <input type="text" id="childNameInput" placeholder="Nome da criança" />
+          <h3>Pessoas</h3>
+          <div id="profileList"></div>
+          <label class="field" style="margin-top: 4px;">
+            <span>Adicionar pessoa</span>
+            <input type="text" id="newProfileName" placeholder="Nome" />
           </label>
+          <button type="button" class="btn-secondary btn-block" id="addProfileBtn">Adicionar</button>
         </div>
 
         <div class="settings-section">
@@ -324,13 +341,14 @@
 (function () {
   // Bump this on every deploy so it's easy to confirm GitHub Pages
   // is actually serving the latest build (shown in the footer).
-  var APP_VERSION = 'v7 — 2026-08-12';
+  var APP_VERSION = 'v8 — 2026-08-12';
 
   // Fixed backend URL — embedded so people you share the app with only
   // ever need to enter the sync password, never a URL.
   var CLOUD_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbzVOGe9YvnW9GIN6DnzIXu_-VzNutd6PcQlzAq40fiNDxsgvLlH74AYdXhBKv0MVuO6eQ/exec';
 
   var STORAGE_KEY = 'medication-log';
+  var ACTIVE_PROFILE_KEY = 'medication-log-active-profile';
 
   // Standalone (GitHub Pages) storage backend: mirrors the {key, value}
   // shape and reject-on-missing-key behavior of Claude's artifact storage
@@ -355,15 +373,26 @@
     }
   };
 
-  var state = { childName: '', entries: [], medDefaults: {} };
-  var confirmDeleteId = null;
+  // state = { profiles: [{ id, name, entries, medDefaults }, ...] }
+  // This whole object is what gets saved locally and synced to the cloud.
+  var state = { profiles: [] };
+  // Which profile tab is showing — a per-device UI preference, kept OUT of
+  // state/sync on purpose so switching tabs on one phone doesn't jump the
+  // active tab on everyone else's phone.
+  var activeProfileId = null;
+  var confirmDeleteId = null;        // dose entry pending delete confirmation
+  var confirmDeleteProfileId = null; // profile pending delete confirmation
+
+  function genId() {
+    return (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
+  }
 
   // DOM refs
-  var childNameDisplay = document.getElementById('childNameDisplay');
-  var childNameInput = document.getElementById('childNameInput');
+  var profileNameDisplay = document.getElementById('profileNameDisplay');
   var settingsBtn = document.getElementById('settingsBtn');
   var saveStatusEl = document.getElementById('saveStatus');
   var cloudStatusEl = document.getElementById('cloudStatus');
+  var profileTabsEl = document.getElementById('profileTabs');
   var statusSection = document.getElementById('statusSection');
   var historyList = document.getElementById('historyList');
   var fabAdd = document.getElementById('fabAdd');
@@ -381,6 +410,9 @@
 
   var settingsOverlay = document.getElementById('settingsOverlay');
   var closeSettingsBtn = document.getElementById('closeSettingsBtn');
+  var profileListEl = document.getElementById('profileList');
+  var newProfileNameInput = document.getElementById('newProfileName');
+  var addProfileBtn = document.getElementById('addProfileBtn');
   var syncStatusMsg = document.getElementById('syncStatusMsg');
   var syncTokenInput = document.getElementById('syncToken');
   var syncConnectBtn = document.getElementById('syncConnectBtn');
@@ -411,6 +443,23 @@
   function setCloudStatus(kind, text) {
     cloudStatusEl.className = 'save-status ' + kind;
     cloudStatusEl.textContent = text;
+  }
+
+  // ---- Active-profile helpers ----
+  function loadActiveProfileId() {
+    try { return localStorage.getItem(ACTIVE_PROFILE_KEY) || null; } catch (e) { return null; }
+  }
+  function saveActiveProfileId(id) {
+    try { localStorage.setItem(ACTIVE_PROFILE_KEY, id); } catch (e) {}
+  }
+  function getProfileById(id) {
+    for (var i = 0; i < state.profiles.length; i++) {
+      if (state.profiles[i].id === id) return state.profiles[i];
+    }
+    return null;
+  }
+  function getActiveProfile() {
+    return getProfileById(activeProfileId) || state.profiles[0];
   }
 
   // ---- Cloud sync config (just the password — URL is fixed above) ----
@@ -447,19 +496,61 @@
     return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate());
   }
 
+  // ---- Data shape migration ----
+  // Accepts either the current { profiles: [...] } shape, the older
+  // single-profile { childName, entries, medDefaults } shape, or nothing,
+  // and always returns a valid { profiles: [...] } with at least one entry.
+  function migrateStateIfNeeded(parsed) {
+    if (parsed && Array.isArray(parsed.profiles) && parsed.profiles.length > 0) {
+      return { profiles: parsed.profiles };
+    }
+    if (parsed && Array.isArray(parsed.entries)) {
+      return {
+        profiles: [{
+          id: genId(),
+          name: parsed.childName || '',
+          entries: parsed.entries || [],
+          medDefaults: parsed.medDefaults || {}
+        }]
+      };
+    }
+    return { profiles: [{ id: genId(), name: '', entries: [], medDefaults: {} }] };
+  }
+
+  function hasAnyRemoteData(data) {
+    if (!data) return false;
+    if (Array.isArray(data.profiles) && data.profiles.length > 0) return true;
+    if (Array.isArray(data.entries) && data.entries.length > 0) return true;
+    return false;
+  }
+
   // ---- Local persistence ----
   async function loadState() {
     try {
       var res = await storage.get(STORAGE_KEY);
       if (res && res.value) {
-        var parsed = JSON.parse(res.value);
-        state.childName = parsed.childName || '';
-        state.entries = Array.isArray(parsed.entries) ? parsed.entries : [];
-        state.medDefaults = parsed.medDefaults || {};
+        state.profiles = migrateStateIfNeeded(JSON.parse(res.value)).profiles;
+      } else {
+        state.profiles = migrateStateIfNeeded(null).profiles;
       }
     } catch (e) {
       console.log('No existing medication log found (or storage unavailable), starting fresh.', e);
+      state.profiles = migrateStateIfNeeded(null).profiles;
     }
+    activeProfileId = loadActiveProfileId();
+    if (!activeProfileId || !getProfileById(activeProfileId)) {
+      activeProfileId = state.profiles[0].id;
+    }
+    render();
+  }
+
+  async function applyRemoteData(data) {
+    state.profiles = migrateStateIfNeeded(data).profiles;
+    if (!activeProfileId || !getProfileById(activeProfileId)) {
+      activeProfileId = state.profiles[0].id;
+      saveActiveProfileId(activeProfileId);
+    }
+    await storage.set(STORAGE_KEY, JSON.stringify(state));
     render();
   }
 
@@ -584,8 +675,8 @@
       body: JSON.stringify(data)
     });
     await new Promise(function (r) { setTimeout(r, 400); });
-    var confirmed = await cloudFetchLatest();
-    var matches = confirmed && JSON.stringify(confirmed.entries || []) === JSON.stringify(data.entries || []);
+    var confirmed = migrateStateIfNeeded(await cloudFetchLatest());
+    var matches = JSON.stringify(confirmed.profiles) === JSON.stringify(data.profiles);
     if (!matches) throw new Error('não foi possível confirmar que os dados chegaram à planilha');
     return true;
   }
@@ -608,12 +699,8 @@
     setCloudStatus('checking', '☁ Sincronizando…');
     try {
       var data = await cloudFetchLatest();
-      if (data && Array.isArray(data.entries)) {
-        state.childName = data.childName || '';
-        state.entries = data.entries;
-        state.medDefaults = data.medDefaults || {};
-        await storage.set(STORAGE_KEY, JSON.stringify(state));
-        render();
+      if (hasAnyRemoteData(data)) {
+        await applyRemoteData(data);
       }
       setCloudStatus('ok', '☁ Sincronizado às ' + formatTime(new Date()));
       return true;
@@ -627,26 +714,39 @@
   // ---- Rendering ----
   function render() {
     renderHeader();
+    renderTabs();
     renderStatus();
     renderHistory();
     renderMedList();
   }
 
   function renderHeader() {
-    childNameDisplay.textContent = state.childName || 'Controle de Medicação';
+    var p = getActiveProfile();
+    profileNameDisplay.textContent = (p && p.name) || 'Sem nome';
+  }
+
+  function renderTabs() {
+    var html = state.profiles.map(function (p) {
+      var cls = 'profile-tab' + (p.id === activeProfileId ? ' active' : '');
+      return '<button type="button" class="' + cls + '" data-id="' + p.id + '">' + escapeHtml(p.name || 'Sem nome') + '</button>';
+    }).join('');
+    html += '<button type="button" class="profile-tab-add" id="profileTabAdd" aria-label="Adicionar pessoa">+</button>';
+    profileTabsEl.innerHTML = html;
   }
 
   function renderMedList() {
-    var names = Object.keys(state.medDefaults);
+    var p = getActiveProfile();
+    var names = Object.keys(p.medDefaults || {});
     medListEl.innerHTML = names.map(function (n) {
       return '<option value="' + escapeHtml(n) + '"></option>';
     }).join('');
   }
 
   function latestEntryFor(medName) {
+    var p = getActiveProfile();
     var latest = null;
-    for (var i = 0; i < state.entries.length; i++) {
-      var e = state.entries[i];
+    for (var i = 0; i < p.entries.length; i++) {
+      var e = p.entries[i];
       if (e.medName === medName) {
         if (!latest || new Date(e.timestamp) > new Date(latest.timestamp)) latest = e;
       }
@@ -655,8 +755,9 @@
   }
 
   function renderStatus() {
-    var tracked = Object.keys(state.medDefaults).filter(function (name) {
-      var d = state.medDefaults[name];
+    var p = getActiveProfile();
+    var tracked = Object.keys(p.medDefaults || {}).filter(function (name) {
+      var d = p.medDefaults[name];
       return d && d.intervalHours && d.intervalHours > 0 && latestEntryFor(name);
     });
 
@@ -668,7 +769,7 @@
     var r = 24, circumference = 2 * Math.PI * r;
 
     statusSection.innerHTML = tracked.map(function (name) {
-      var def = state.medDefaults[name];
+      var def = p.medDefaults[name];
       var last = latestEntryFor(name);
       var lastTime = new Date(last.timestamp);
       var totalMs = def.intervalHours * 3600000;
@@ -711,12 +812,13 @@
   }
 
   function renderHistory() {
-    if (state.entries.length === 0) {
+    var p = getActiveProfile();
+    if (p.entries.length === 0) {
       historyList.innerHTML = '<p class="history-empty">Nenhuma dose registrada ainda. Toque em + para começar.</p>';
       return;
     }
 
-    var sorted = state.entries.slice().sort(function (a, b) {
+    var sorted = p.entries.slice().sort(function (a, b) {
       return new Date(b.timestamp) - new Date(a.timestamp);
     });
 
@@ -765,6 +867,26 @@
     }).join('');
   }
 
+  function renderProfileList() {
+    profileListEl.innerHTML = state.profiles.map(function (p) {
+      if (confirmDeleteProfileId === p.id) {
+        return '' +
+          '<div class="profile-row">' +
+            '<div class="history-confirm">' +
+              '<span>Excluir ' + escapeHtml(p.name || 'esta pessoa') + ' e todo o histórico?</span>' +
+              '<button class="confirm-no" data-pid="' + p.id + '">Cancelar</button>' +
+              '<button class="confirm-yes" data-pid="' + p.id + '">Excluir</button>' +
+            '</div>' +
+          '</div>';
+      }
+      return '' +
+        '<div class="profile-row">' +
+          '<input type="text" class="profile-name-input" data-pid="' + p.id + '" value="' + escapeHtml(p.name || '') + '" placeholder="Nome" />' +
+          '<button type="button" class="profile-del-btn" data-pid="' + p.id + '" aria-label="Excluir pessoa">🗑</button>' +
+        '</div>';
+    }).join('');
+  }
+
   // ---- Sheet (add dose) ----
   function openSheet(prefill) {
     doseForm.reset();
@@ -801,12 +923,12 @@
     var timestamp = timestampInput.value ? new Date(timestampInput.value).toISOString() : new Date().toISOString();
     var notes = notesInput.value.trim();
 
-    var id = (window.crypto && crypto.randomUUID) ? crypto.randomUUID() : (Date.now() + '-' + Math.random().toString(36).slice(2));
+    var p = getActiveProfile();
+    var id = genId();
+    p.entries.push({ id: id, medName: medName, amount: amount, unit: unit, intervalHours: intervalRaw, timestamp: timestamp, notes: notes });
 
-    state.entries.push({ id: id, medName: medName, amount: amount, unit: unit, intervalHours: intervalRaw, timestamp: timestamp, notes: notes });
-
-    var prevDefault = state.medDefaults[medName] || {};
-    state.medDefaults[medName] = {
+    var prevDefault = p.medDefaults[medName] || {};
+    p.medDefaults[medName] = {
       unit: unit,
       intervalHours: (intervalRaw && intervalRaw > 0) ? intervalRaw : (prevDefault.intervalHours || null)
     };
@@ -816,9 +938,9 @@
     closeSheet();
   });
 
-  // ---- Settings sheet (name + sync + backup, centralized) ----
+  // ---- Settings sheet (people + sync + backup, centralized) ----
   function openSettings() {
-    childNameInput.value = state.childName;
+    renderProfileList();
     syncTokenInput.value = cloudConfig ? (cloudConfig.token || '') : '';
     techWebAppUrl.textContent = CLOUD_WEBAPP_URL;
     backupExport.value = JSON.stringify(state, null, 2);
@@ -832,18 +954,90 @@
       syncStatusMsg.textContent = 'Ainda não conectado. Digite a senha combinada e toque em Conectar.';
     }
   }
-  function closeSettings() {
-    state.childName = childNameInput.value.trim();
-    persist();
-    renderHeader();
-    settingsOverlay.classList.add('hidden');
-  }
+  function closeSettings() { settingsOverlay.classList.add('hidden'); }
 
   settingsBtn.addEventListener('click', openSettings);
   closeSettingsBtn.addEventListener('click', closeSettings);
   settingsOverlay.addEventListener('click', function (e) {
     if (e.target === settingsOverlay) closeSettings();
   });
+
+  // Tabs: switch active profile, or open settings via the "+" tab
+  profileTabsEl.addEventListener('click', function (e) {
+    var addBtn = e.target.closest('#profileTabAdd');
+    if (addBtn) { openSettings(); return; }
+    var tab = e.target.closest('.profile-tab');
+    if (tab) {
+      activeProfileId = tab.getAttribute('data-id');
+      saveActiveProfileId(activeProfileId);
+      confirmDeleteId = null;
+      render();
+    }
+  });
+
+  // People management inside settings
+  addProfileBtn.addEventListener('click', function () {
+    var name = newProfileNameInput.value.trim();
+    if (!name) { showToast('Digite um nome antes de adicionar.'); return; }
+    var id = genId();
+    state.profiles.push({ id: id, name: name, entries: [], medDefaults: {} });
+    activeProfileId = id;
+    saveActiveProfileId(id);
+    newProfileNameInput.value = '';
+    persist();
+    render();
+    renderProfileList();
+    showToast('Pessoa adicionada!');
+  });
+
+  profileListEl.addEventListener('click', function (e) {
+    var delBtn = e.target.closest('.profile-del-btn');
+    if (delBtn) {
+      confirmDeleteProfileId = delBtn.getAttribute('data-pid');
+      renderProfileList();
+      return;
+    }
+    var yesBtn = e.target.closest('.confirm-yes');
+    if (yesBtn) {
+      var pid = yesBtn.getAttribute('data-pid');
+      if (state.profiles.length <= 1) {
+        showToast('Precisa ter pelo menos uma pessoa.');
+        confirmDeleteProfileId = null;
+        renderProfileList();
+        return;
+      }
+      state.profiles = state.profiles.filter(function (p) { return p.id !== pid; });
+      if (activeProfileId === pid) {
+        activeProfileId = state.profiles[0].id;
+        saveActiveProfileId(activeProfileId);
+      }
+      confirmDeleteProfileId = null;
+      persist();
+      render();
+      renderProfileList();
+      showToast('Pessoa excluída.');
+      return;
+    }
+    var noBtn = e.target.closest('.confirm-no');
+    if (noBtn) {
+      confirmDeleteProfileId = null;
+      renderProfileList();
+    }
+  });
+
+  profileListEl.addEventListener('blur', function (e) {
+    var input = e.target.closest('.profile-name-input');
+    if (!input) return;
+    var pid = input.getAttribute('data-pid');
+    var p = getProfileById(pid);
+    if (!p) return;
+    var newName = input.value.trim();
+    if (newName === p.name) return;
+    p.name = newName;
+    persist();
+    renderHeader();
+    renderTabs();
+  }, true);
 
   syncConnectBtn.addEventListener('click', async function () {
     var token = syncTokenInput.value.trim();
@@ -857,13 +1051,9 @@
 
     try {
       var data = await cloudFetchLatest();
-      if (data && Array.isArray(data.entries) && data.entries.length > 0) {
-        state.childName = data.childName || '';
-        state.entries = data.entries;
-        state.medDefaults = data.medDefaults || {};
-        await storage.set(STORAGE_KEY, JSON.stringify(state));
-        render();
-        childNameInput.value = state.childName;
+      if (hasAnyRemoteData(data)) {
+        await applyRemoteData(data);
+        renderProfileList();
         syncStatusMsg.textContent = 'Conectado! Os dados deste aparelho foram atualizados com os da planilha.';
       } else {
         await cloudUpdate(state);
@@ -885,6 +1075,7 @@
       return;
     }
     var ok = await cloudPull();
+    if (ok) renderProfileList();
     syncStatusMsg.className = ok ? 'status-msg' : 'status-msg warn';
     syncStatusMsg.textContent = ok ? 'Sincronizado agora mesmo.' : 'Falha ao sincronizar — tente de novo.';
     showToast(ok ? 'Sincronizado!' : 'Falha ao sincronizar — tente de novo.');
@@ -922,13 +1113,15 @@
     if (!raw) { showToast('Cole o backup antes de restaurar.'); return; }
     try {
       var parsed = JSON.parse(raw);
-      if (!parsed || !Array.isArray(parsed.entries)) throw new Error('formato inválido');
-      state.childName = parsed.childName || '';
-      state.entries = parsed.entries;
-      state.medDefaults = parsed.medDefaults || {};
+      var migrated = migrateStateIfNeeded(parsed);
+      state.profiles = migrated.profiles;
+      if (!getProfileById(activeProfileId)) {
+        activeProfileId = state.profiles[0].id;
+        saveActiveProfileId(activeProfileId);
+      }
       persist();
       render();
-      childNameInput.value = state.childName;
+      renderProfileList();
       backupImport.value = '';
       showToast('Dados restaurados!');
     } catch (e) {
@@ -942,8 +1135,9 @@
     if (dismissBtn) {
       e.stopPropagation();
       var med = dismissBtn.getAttribute('data-med');
-      if (state.medDefaults[med]) {
-        state.medDefaults[med].intervalHours = null;
+      var p = getActiveProfile();
+      if (p.medDefaults[med]) {
+        p.medDefaults[med].intervalHours = null;
         persist();
         render();
       }
@@ -952,7 +1146,7 @@
     var card = e.target.closest('.status-card');
     if (card) {
       var name = card.getAttribute('data-med');
-      var def = state.medDefaults[name] || {};
+      var def = getActiveProfile().medDefaults[name] || {};
       openSheet({ medName: name, unit: def.unit, intervalHours: def.intervalHours });
     }
   });
@@ -967,7 +1161,8 @@
     var yesBtn = e.target.closest('.confirm-yes');
     if (yesBtn) {
       var idYes = yesBtn.getAttribute('data-id');
-      state.entries = state.entries.filter(function (en) { return en.id !== idYes; });
+      var p = getActiveProfile();
+      p.entries = p.entries.filter(function (en) { return en.id !== idYes; });
       confirmDeleteId = null;
       persist();
       render();
