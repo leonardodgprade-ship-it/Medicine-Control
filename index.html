@@ -116,6 +116,8 @@
   .backup-status-msg.warn { background: var(--rose-soft); color: var(--rose); }
 
   .toast { position: fixed; top: 16px; left: 50%; transform: translateX(-50%); background: var(--rose); color: #fff; padding: 10px 16px; border-radius: 10px; font-size: 13px; z-index: 50; box-shadow: 0 6px 16px rgba(0,0,0,0.15); max-width: 90%; text-align: center; }
+
+  .app-footer { margin-top: 28px; padding-top: 14px; border-top: 1px solid var(--line); text-align: center; font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--ink-soft); }
 </style>
 </head>
 <body>
@@ -139,6 +141,10 @@
       <h2 class="section-title">Histórico</h2>
       <div id="historyList"></div>
     </section>
+
+    <footer class="app-footer">
+      <span id="appVersion"></span>
+    </footer>
 
     <button class="fab" id="fabAdd" aria-label="Registrar nova dose">+</button>
 
@@ -254,6 +260,10 @@
 
 <script>
 (function () {
+  // Bump this on every deploy so it's easy to confirm GitHub Pages
+  // is actually serving the latest build (shown in the footer).
+  var APP_VERSION = 'v6 — 2026-08-12';
+
   var STORAGE_KEY = 'medication-log';
 
   // Standalone (GitHub Pages) storage backend: mirrors the {key, value, shared}
@@ -474,6 +484,7 @@
 
   async function cloudFetchLatest() {
     var url = withToken_(cloudConfig.url);
+    var directErrMsg = 'não tentado';
 
     // Try a plain fetch first — Apps Script redirects to a googleusercontent.com
     // URL to actually serve the content, and that target often does support
@@ -485,14 +496,21 @@
         if (data && data.error) throw new Error(data.error === 'unauthorized' ? 'senha incorreta' : data.error);
         return data;
       }
+      directErrMsg = 'HTTP ' + res.status;
     } catch (directErr) {
+      directErrMsg = (directErr && directErr.message) ? directErr.message : String(directErr);
       console.log('Direct fetch failed, falling back to JSONP.', directErr);
     }
 
     // Fallback: script-tag (JSONP) load, which isn't subject to CORS at all.
-    var data2 = await jsonpFetch_(cloudConfig.url);
-    if (data2 && data2.error) throw new Error(data2.error === 'unauthorized' ? 'senha incorreta' : data2.error);
-    return data2;
+    try {
+      var data2 = await jsonpFetch_(cloudConfig.url);
+      if (data2 && data2.error) throw new Error(data2.error === 'unauthorized' ? 'senha incorreta' : data2.error);
+      return data2;
+    } catch (jsonpErr) {
+      var jsonpMsg = (jsonpErr && jsonpErr.message) ? jsonpErr.message : String(jsonpErr);
+      throw new Error('fetch direto: ' + directErrMsg + ' | JSONP: ' + jsonpMsg);
+    }
   }
 
   // POST responses also lack CORS headers, so we can't read them back either.
@@ -971,6 +989,8 @@
   setInterval(renderStatus, 30000);
 
   loadState().then(async function () {
+    var versionEl = document.getElementById('appVersion');
+    if (versionEl) versionEl.textContent = APP_VERSION;
     await testStorage();
     if (cloudConfig && cloudConfig.url && cloudConfig.token) {
       await cloudPull();
