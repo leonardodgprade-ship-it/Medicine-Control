@@ -248,14 +248,16 @@
             </label>
             <label class="field">
               <span>Unidade</span>
-              <input type="text" id="unit" list="unitList" value="ml" required />
-              <datalist id="unitList">
-                <option value="ml"></option>
-                <option value="mg"></option>
-                <option value="gotas"></option>
-                <option value="comprimido(s)"></option>
-                <option value="sachê"></option>
-              </datalist>
+              <select id="unit" required>
+                <option value="ml">ml</option>
+                <option value="mg">mg</option>
+                <option value="gotas">gotas</option>
+                <option value="comprimido(s)">comprimido(s)</option>
+                <option value="cápsula(s)">cápsula(s)</option>
+                <option value="sachê">sachê</option>
+                <option value="__custom__">Outro…</option>
+              </select>
+              <input type="text" id="unitCustom" class="hidden" placeholder="Digite a unidade" style="margin-top: 8px;" />
             </label>
           </div>
           <label class="field">
@@ -341,7 +343,7 @@
 (function () {
   // Bump this on every deploy so it's easy to confirm GitHub Pages
   // is actually serving the latest build (shown in the footer).
-  var APP_VERSION = 'v8 — 2026-08-12';
+  var APP_VERSION = 'v9 — 2026-08-13';
 
   // Fixed backend URL — embedded so people you share the app with only
   // ever need to enter the sync password, never a URL.
@@ -402,6 +404,7 @@
   var medNameInput = document.getElementById('medName');
   var amountInput = document.getElementById('amount');
   var unitInput = document.getElementById('unit');
+  var unitCustomInput = document.getElementById('unitCustom');
   var intervalInput = document.getElementById('interval');
   var timestampInput = document.getElementById('timestamp');
   var notesInput = document.getElementById('notes');
@@ -888,14 +891,40 @@
   }
 
   // ---- Sheet (add dose) ----
+  function setUnitValue(unit) {
+    var known = ['ml', 'mg', 'gotas', 'comprimido(s)', 'cápsula(s)', 'sachê'];
+    if (unit && known.indexOf(unit) !== -1) {
+      unitInput.value = unit;
+      unitCustomInput.classList.add('hidden');
+      unitCustomInput.value = '';
+    } else if (unit) {
+      unitInput.value = '__custom__';
+      unitCustomInput.classList.remove('hidden');
+      unitCustomInput.value = unit;
+    } else {
+      unitInput.value = 'ml';
+      unitCustomInput.classList.add('hidden');
+      unitCustomInput.value = '';
+    }
+  }
+
+  unitInput.addEventListener('change', function () {
+    if (unitInput.value === '__custom__') {
+      unitCustomInput.classList.remove('hidden');
+      unitCustomInput.focus();
+    } else {
+      unitCustomInput.classList.add('hidden');
+    }
+  });
+
   function openSheet(prefill) {
     doseForm.reset();
     timestampInput.value = toLocalInputValue(new Date());
-    unitInput.value = 'ml';
+    setUnitValue(prefill ? prefill.unit : null);
     if (prefill) {
       medNameInput.value = prefill.medName;
-      unitInput.value = prefill.unit || 'ml';
       if (prefill.intervalHours) intervalInput.value = prefill.intervalHours;
+      if (prefill.amount !== undefined && prefill.amount !== null) amountInput.value = prefill.amount;
     }
     sheetOverlay.classList.remove('hidden');
   }
@@ -918,7 +947,7 @@
     var medName = medNameInput.value.trim();
     var amount = parseFloat(amountInput.value);
     if (!medName || isNaN(amount)) return;
-    var unit = unitInput.value.trim() || 'ml';
+    var unit = unitInput.value === '__custom__' ? (unitCustomInput.value.trim() || 'ml') : unitInput.value;
     var intervalRaw = intervalInput.value ? parseFloat(intervalInput.value) : null;
     var timestamp = timestampInput.value ? new Date(timestampInput.value).toISOString() : new Date().toISOString();
     var notes = notesInput.value.trim();
@@ -1147,7 +1176,8 @@
     if (card) {
       var name = card.getAttribute('data-med');
       var def = getActiveProfile().medDefaults[name] || {};
-      openSheet({ medName: name, unit: def.unit, intervalHours: def.intervalHours });
+      var last = latestEntryFor(name);
+      openSheet({ medName: name, unit: def.unit, intervalHours: def.intervalHours, amount: last ? last.amount : null });
     }
   });
 
